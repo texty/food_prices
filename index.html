@@ -25,26 +25,6 @@ main {
     grid-template-columns: 1fr 3fr;
 }
 
-.main-header {
-    background-color: rgba(0, 0, 0, .6);
-    background-image: url("Images/Header Background.jpg");
-    background-blend-mode: multiply;
-    background-size: cover;
-    padding-bottom: 30px;
-}
-
-.band-name {
-    text-align: center;
-    margin: 0;
-    font-size: 4em;
-    font-weight: normal;
-    color: white;
-}
-
-.band-name-large {
-    font-size: 8em;
-}
-
 .content-section {
     margin: 1em;
 }
@@ -62,31 +42,6 @@ main {
      font-size: 2.5em; */
 }
 
-.about-band-image {
-    float: left;
-    height: 200px;
-    width: 200px;
-    margin: 15px;
-    border-radius: 50%;
-}
-
-.main-footer {
-    background-color: #56CCF2;
-    color: white;
-    padding: .25em 0;
-}
-
-.main-footer-container {
-    display: flex;
-    align-items: center;
-}
-
-.main-footer-container ul {
-    flex-grow: 1;
-    text-align: end;
-}
-
-
 .btn {
     text-align: center;
     vertical-align: middle;
@@ -94,32 +49,6 @@ main {
     cursor: pointer;
 }
 
-.btn-header {
-    margin: .5em 15% 2em 15%;   
-    border: 2px solid #2D9CDB;
-    background-color: rgba(255, 255, 255, .1);
-    border-radius: 0;
-    font-size: 1.5em;
-    font-weight: lighter;
-    padding-left: 2em;
-    padding-right: 2em;
-}
-
-.btn-header:hover {
-    background-color: rgba(255, 255, 255, .3);
-}
-
-.btn-play {
-    display: block;
-    margin: 0 auto;
-    color: #eee;
-    font-size: 4em;
-    border-radius: 50%;
-    width: 100px;
-    height: 100px;
-    padding: 0;
-    text-align: center;
-}
 
 .btn-primary {
     border: none;
@@ -133,41 +62,9 @@ main {
     background-color: #eee;
 }
 
-.tour-row {
-    border-bottom: 1px solid black;
-    padding-bottom: 1em;
-    margin-bottom: 1em;
-}
-
-.tour-row:last-child {
-    border: none;
-}
-
-.tour-item {
-    display: inline-block;
-    padding-right: .5em;
-}
-
-.tour-date {
-    color: #555;
-    width: 11%;
-    font-weight: bold;
-}
-
-.tour-city {
-    width: 24%;
-}
-
-.tour-arena {
-    width: 42%;
-}
-
-.tour-btn {
-    max-width: 19%;
-}
-
-.shop-item {
-   /* S */
+.shop-items {
+ /*  background-color: #D0F5FF; */
+  background-color: #FFF6EF;
 }
 
 .shop-item-title {
@@ -256,7 +153,7 @@ main {
 }
 
 .btn-danger {
-    color: #EB5757;;
+    color: #EB5757;
     background-color: white;
     border: none;
     border-radius: .3em;
@@ -271,7 +168,7 @@ main {
     height: 30px;
     width: 50px;
     border-radius: 5px;
-    border: 1px solid #56CCF2;
+    border: 1px solid #64BAAA;
     background-color: #eee;
     color: #333;
     padding: 0;
@@ -290,10 +187,14 @@ main {
 
 .cart-total, .infliation-total {
     display: grid;
-    grid-template-columns: 4.5fr 2fr 2fr 3.5fr;
+    grid-template-columns: 4.5fr 2fr 2fr 2fr 3.5fr;
     text-align: left;
     margin-top: 10px;
     margin-right: 10px;
+}
+
+.infliation-total {
+    color: #EB5757;
 }
 
 .cart-total {
@@ -317,9 +218,27 @@ main {
     display: block;
     border: 1px dashed grey;
     background-color: white;
-    margin: 40px auto 80px auto;
+    margin: auto 20px;
+    border: 1px dashed #EB5757;
+    color: #EB5757;
     /* font-size: 1.75em; */
 }
+
+.btn-drawcharts {
+    display: block;
+    border: 1px dashed black;
+    color: black;
+    background-color: white;
+    margin: 50px auto;
+}
+
+/* #my_dataviz {
+    display: block;
+}
+
+#my_dataviz svg {
+    display: block;
+} */
 
     </style>
     <body> 
@@ -336,30 +255,42 @@ main {
                 </div>
             </section>
 
-        <section class="container content-section" style="position:sticky; top:0; height:max-content;width:80%;">
-            <h2 class="section-header">Обрані продукти</h2>
+        <section class="container content-section" style="position:sticky; top:0; height:max-content;">
+           <div style='display: flex; align-items: center;'>
+            <h2 class="section-header">Обрані продукти</h2> 
+            <button class="btn btn-primary btn-purchase" type="button">очистити кошик</button>
+           </div> 
+          
             <div class="cart-row">
                 <span class="cart-item cart-header cart-column">назва</span>
-                <span class="cart-item_infliation cart-header cart-column">інфляція за місяць</span>
                 <span class="cart-price_q1 cart-header cart-column">ціна</span>
                 <span class="cart-price_median cart-header cart-column">попередня ціна</span>
+                <span class="cart-item_infliation cart-header cart-column">інфляція розрахована</span>           
                 <span class="cart-quantity cart-header cart-column">кількість</span>
             </div>
             <div class="cart-items">
             </div>
             <div class="cart-total">
-                <strong class="cart-total-title">СУМА</strong>
+                <strong class="cart-total-title">Усього</strong>
                 <span class="cart-total-q1">0</span>
                 <span class="cart-total-median">0</span>
+                <span class="infliation-total-q1">0 %</span>
+                
                 <span class=""></span>
             </div>
             <div class="infliation-total">
-                <strong class="infliation-total-title">ІНФЛЯЦІЯ за місяць</strong>
-                <span class="infliation-total-q1">0 %</span>
-                <span class="infliation-total-median">0 %</span>
+                <strong class="infliation-total-title">ІНФЛЯЦІЯ реальна</strong> 
+                <span class="infliation-total-median" style='grid-column:4/5; font-weight: bold;'>0 %</span>               
+               
                 <span class=""></span>
             </div>
-            <button class="btn btn-primary btn-purchase" type="button">очистити кошик</button>
+          
+
+            <button class="btn btn-primary btn-drawcharts" type="button">подивитись історію цін на обрані продукти</button>
+
+
+            <div id='my_dataviz'></div>
+
         </section> 
 
 
