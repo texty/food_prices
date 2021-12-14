@@ -1,5 +1,4 @@
-d3.csv("data/cpi_q1_median_november_2021.csv").then(function(data){
-    
+d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function(data){  
 
     const mainColor = '#EB5757';
    
@@ -191,8 +190,12 @@ d3.csv("data/cpi_q1_median_november_2021.csv").then(function(data){
        
 
             var chartsData = data.filter(function(k){
-                return cart.includes(k.name) & k.measure === "Q1" & !isNaN(k.inflation);
+                return cart.includes(k.name) & k.measure === "Q1";
             }) 
+
+            chartsData = chartsData.sort(function(a,b){
+                return a.month - b.month
+            })
 
            /*  chartsData.forEach(function(d){
                 d.month = d3.timeParse("%Y-%m-%d")(d.month);
@@ -215,16 +218,68 @@ d3.csv("data/cpi_q1_median_november_2021.csv").then(function(data){
             allKeys = sumstat.map(function(d){return d.key})
 
             // Add an svg element for each group. The will be one beside each other and will go on the next row when no more room available
-            var svg = d3.select("#my_dataviz")
+            sumstat.forEach(function(item){
+
+                console.log(item)
+                var svg = d3.select("#my_dataviz")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)               
+                    .append("g")               
+                    .attr("transform",
+                    "translate(" + margin.left + "," + margin.top + ")");
+
+                var x = d3.scaleTime()
+                    .domain(d3.extent(item.values, function(d) { return d.month; }))
+                    .range([ 0, width ]);
+    
+    
+                svg
+                    .append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x).ticks(3));
+
+                var y = d3.scaleLinear()
+                    .domain([0, d3.max(item.values, function(d) { return +d.price; })])
+                    .range([ height, 0 ]); 
+
+                svg
+                    .append("path")
+                    .attr("fill", "none")
+                    .attr("stroke", mainColor)
+                    .attr("stroke-width", 1.9)
+                    .attr("d", function(){
+                        
+                    return  d3.line()
+                        .x(function(d) { return x(d.month); })
+                        .y(function(d) { return y(+d.price); })
+                        (item.values) 
+                    })
+
+                // Add titles
+                svg
+                    .append("text")
+                    .attr("text-anchor", "start")
+                    .attr("y", -5)
+                    .attr("x", 0)
+                    .text(function(d){ return(item.key)})
+                    .style("fill", '#333')
+
+
+            })
+
+            /* var svg = d3.select("#my_dataviz")
                 .selectAll("uniqueChart")
                 .data(sumstat)
                 .enter()
                 .append("svg")
                     .attr("width", width + margin.left + margin.right)
-                    .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                    .attr("transform",
-                        "translate(" + margin.left + "," + margin.top + ")");
+                    .attr("height", height + margin.top + margin.bottom)               
+                .append("g")               
+                .attr("transform",
+                    "translate(" + margin.left + "," + margin.top + ")");
+
+                
 
             // Add X axis --> it is a date format
             var x = d3.scaleTime()
@@ -240,10 +295,8 @@ d3.csv("data/cpi_q1_median_november_2021.csv").then(function(data){
             //Add Y axis
             var y = d3.scaleLinear()
                 .domain([0, d3.max(chartsData, function(d) { return +d.price; })])
-                .range([ height, 0 ]);
+                .range([ height, 0 ]); 
 
-            svg.append("g")
-                .call(d3.axisLeft(y).ticks(5));
 
             // Draw the line
             svg
@@ -252,10 +305,10 @@ d3.csv("data/cpi_q1_median_november_2021.csv").then(function(data){
                 .attr("stroke", mainColor)
                 .attr("stroke-width", 1.9)
                 .attr("d", function(d){
-                return d3.line()
+                return  d3.line()
                     .x(function(d) { return x(d.month); })
                     .y(function(d) { return y(+d.price); })
-                    (d.values)
+                    (d.values) 
                 })
 
             // Add titles
@@ -265,7 +318,7 @@ d3.csv("data/cpi_q1_median_november_2021.csv").then(function(data){
                 .attr("y", -5)
                 .attr("x", 0)
                 .text(function(d){ return(d.key)})
-                .style("fill", '#333')
+                .style("fill", '#333') */
 
 
 
