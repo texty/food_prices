@@ -16,20 +16,43 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
             d.month.getTime() === new Date("2021-11-01T00:00:00").getTime() 
     })
 
-    var itemDetails = d3.select(".shop-items")
-        .selectAll("div.shop-item")
-        .data(items_array)
+    var nested_data = d3.nest()
+        .key(function(d) { return d.category; })
+        .entries(items_array);
+
+
+    var itemCategory = d3.select(".shop-items")
+        .selectAll("div.shop-item-category")
+        .data(nested_data)
         .enter()
         .append("div")
+        .attr('class', "shop-item-category")
+        
+        
+        itemCategory.append("h4") 
+        .text(function(d){  return d.key })
+        .on("click", function(){
+            d3.select(this.parentNode).selectAll(".shop-item").classed("hidden", !d3.select(this.parentNode).selectAll(".shop-item").classed("hidden"))
+
+        })
+
+
+    var itemDetails = itemCategory
+        .selectAll("div.shop-item")
+        .data(function(d){ return d.values}) 
+        .enter()       
+        .append("div")
         .attr("class", "shop-item")
+        .classed("hidden", true)
         .append("div")
         .attr("class", "shop-item-details");
 
     itemDetails
         .append("span")
         .attr('class', "shop-item-title")
-        .text(function(d){ return d.name})
-
+        .text(function(d){            
+            return d.name })
+ 
     itemDetails
         .append("span")
         .attr('class', "shop-item-price")

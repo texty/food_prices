@@ -6,8 +6,8 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
-        <link rel="stylesheet" href="styles.css" />
-        <script src="store.js" async></script>
+       <!--  <link rel="stylesheet" href="styles.css" />
+        <script src="store.js" async></script> -->
     </head>
     <style>
 * {
@@ -85,12 +85,16 @@ main {
 }
 
 .shop-items {
- /*  background-color: #D0F5FF; */
   background-color: #FFF6EF;
 }
 
+.hidden {
+    display: none
+}
+
+
 .shop-item-title {
-    display: none;
+     display: none; 
    /*  display: block; */
     width: 100%;
     text-align: center;
@@ -117,7 +121,7 @@ main {
 }
 
 .shop-items {
-   display: flex;
+   display: block;
    flex-wrap: wrap;
    /* justify-content: space-around;  */
 }

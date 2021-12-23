@@ -2,6 +2,11 @@ library(dplyr)
 library(tidyr)
 library(stringr)
 library(ggplot2)
+library(stringr)
+library(gridExtra)
+library(grid)
+library(magick)
+library(scales)
 
 # як врахувати інфляцію для групи продуктів
 # апельсини  - 5 кг (інфляція 28%)
@@ -23,7 +28,7 @@ source("function_restore_sections_value.R")
 # ====================================
 
 # year_19 = read.csv("/home/yevheniia/python/food_prices_arviched_data/ashan/ashan-09-11-2019.csv", sep=";", stringsAsFactors = FALSE)
-# year_20 = read.csv("/home/yevheniia/python/food_prices_arviched_data/ashan/ashan-18-05-2020.csv", sep=";", stringsAsFactors = FALSE)
+#year_20 = read.csv("/home/yevheniia/python/food_prices_arviched_data/ashan/ashan-18-05-2020.csv", sep=";", stringsAsFactors = FALSE)
 year_21 = read.csv("food_prices_19_11_21.csv", header=FALSE, stringsAsFactors = FALSE) %>% 
   bind_rows(read.csv("food_prices_august_2021.csv")) %>% 
   filter(V1 == "Ашан")  %>% 
@@ -64,48 +69,114 @@ dataFiles <- list.files(pattern = "*.csv") %>%
 
 
 
-median = data %>% 
+# median = data %>%
+#   mutate(month = format(as.Date(time), "%Y-%m")) %>%
+#   select(
+#     id,
+#     product,
+#     price,
+#     section,
+#     time,
+#     weight_value,
+#     weight_unit,
+#     price_kg,
+#     month,
+#     subsection
+#   ) %>%
+#   group_by(month, subsection) %>%
+#   mutate(median = median(price_kg)) %>%
+#   ungroup() %>%
+#   select(section, subsection, month, median) %>%
+#   unique() %>%
+#   rename(value = median) %>%
+#   mutate(measure = "median",
+#          month = as.Date(paste0(month, "-01"), format = "%Y-%m-%d"))
+
+min = data %>%
   mutate(month = format(as.Date(time), "%Y-%m")) %>%
-  select(id, product,price,section,time,weight_value,weight_unit,price_kg,month,subsection) %>% 
-  # rbind(dataFiles) %>% 
+  select(
+    id,
+    product,
+    price,
+    section,
+    time,
+    weight_value,
+    weight_unit,
+    price_kg,
+    month,
+    subsection
+  ) %>%
   group_by(month, subsection) %>%
-  mutate(median = median(price_kg)) %>%
+  mutate(median = min(price_kg)) %>%
   ungroup() %>%
   select(subsection, month, median) %>%
   unique() %>%
-  # spread(key = "month", value = "median") %>% 
-  # select(-`2020-02`) %>% 
-  rename(value = median) %>% 
-  mutate(measure = "median",
-         month = as.Date(paste0(month, "-01"), format="%Y-%m-%d"))
+  rename(value = median) %>%
+  mutate(measure = "min",
+         month = as.Date(paste0(month, "-01"), format = "%Y-%m-%d"))
 
-q1 = data %>% 
+
+q1 = data %>%
   mutate(month = format(as.Date(time), "%Y-%m")) %>%
-  select(id, product,price,section,time,weight_value,weight_unit,price_kg,month,subsection) %>% 
-  # rbind(dataFiles) %>% 
+  select(
+    id,
+    product,
+    price,
+    section,
+    time,
+    weight_value,
+    weight_unit,
+    price_kg,
+    month,
+    subsection
+  ) %>%
+  # rbind(dataFiles) %>%
   group_by(month, subsection) %>%
-  mutate(q_1 = quantile(price_kg, prob=.25, na.rm = TRUE)) %>%
+  mutate(q_1 = quantile(price_kg, prob = .25, na.rm = TRUE)) %>%
   ungroup() %>%
   select(subsection, month, q_1) %>%
   unique() %>%
-  # spread(key = "month", value = "q_1") %>% 
-  # select(-`2020-02`) %>% 
-  rename(value = q_1) %>% 
+  rename(value = q_1) %>%
   mutate(measure = "Q1",
-         month = as.Date(paste0(month, "-01"), format="%Y-%m-%d")) 
+         month = as.Date(paste0(month, "-01"), format = "%Y-%m-%d"))
+
+
 
 
 infliation_q1 = q1 %>% 
-  bind_rows(median) %>% 
+  bind_rows(min) %>% 
   filter(month != as.Date("2020-02-01")) %>% 
   group_by(subsection, measure) %>% 
   arrange(month) %>% 
   mutate(inflation = paste0(formatC((value - lag(value))*100/lag(value), digits = 2))) %>% 
   ungroup() %>% 
-  mutate(inflation = as.numeric(inflation))
-  # spread(key="month", value="value") %>% 
+  mutate(inflation = as.numeric(inflation)) %>% 
+  mutate(category = car::recode(subsection,"
+            c('хліб цільнозерновий', 'хліб пшеничний','хліб житньо-пшеничний','батон','багет')='хліб';
+            c('апельсини', 'банани', 'яблука', 'авокадо', 'мандарини', 'виноград', 'лимони','ягоди', 'ківі', 'кавуни')='фрукти';
+            c('буряк', 'кабачки', 'капуста білокачанна', 'картопля', 'морква', 'огірки', 'помідори', 'цибуля ріпчаста', 'часник', 'гриби', 'перець солодкий','баклажани','салати')='овочі';
+            c('свинина', 'свинина гуляш', 'свинина фарш', 'свинина ребра', 'яловичина', 'яловичина фарш', 'яловичина ребра','філе куряче', 'курка крильця', 'курка стегно','птиця (тушки курячі)','субпродукти яловичні','субпродукти свинячі',' субпродукти курячі','сало','вирізка свиняча', 'вирізка яловича') = 'м’ясо';
+            c('сосиски, сардельки вищого ґатунку', 'сосиски, сардельки першого ґатунку', 'ковбаси варені вищого ґатунку','ковбаси варені першого ґатунку', 'ковбаси сирокопчені в/ґ','ковбаси варено-копчені в/ґ', 'вироби з м’яса делікатесні') = 'ковбасні вироби';
+            c('пластівці вівсяні', 'рис', 'крупи гречані', 'борошно пшеничне', 'макарони', 'цукор', 'сухі сніданки', 'квасоля','пшоно','крупи манні','крупи ячні','супи')= 'бакалея';
+            c('молоко пастеризоване жирністю до 2,6% включно', 'йогурт', 'кефір 2.5%', 'сметана жирністю до 15% включно', 'сметана з підвищеним вмістом жиру',  'крем-сир', 'сири тверді типу Едам', 'сири м’які жирні', 'масло вершкове 82%', 'масло вершкове 73%', 'маргарин', 'молоко з підвищеним вмістом жиру', 'сири м’які нежирні', 'сири плавлені', 'сири розсольні','сирки та сиркова маса','молочні суміші для дитячого харчування','яйця')='молочна продукція та яйця';
+            c( 'риба червона', 'риба річна', 'ікра червона', 'оселедці','скумбрія копчена', 'філе мороженої риби', 'риба морожена', 'консерви рибні в олії','морепродукти')='риба та морепродукти';
+            c('олія соняшникова', 'олія оливкова')='олія';
+            c('сік яблучний', 'сік апельсиновий', 'солодка вода' )='безалкогольні напої';
+            c('кава розчинна', 'кава мелена', 'чай у пакетиках')='кава і чай';
+            c('пельмені', 'вареники з картоплею',  'крабові палички' )='напівфабрикати';
+            c('кукурудза консервована', 'горошок консервований','гриби консервовані')='консервовані овочі і гриби';
+            c('броколі заморожена', 'шпінат заморожений')='овочі заморожені';
+            c('печиво здобне', 'печиво затяжне','шоколад', 'цукати', 'вафлі','мед','зефір','морозиво','карамель','цукерки шоколадні', 'торти')='солодощі';
+            c('сухофрукти')='сухофрукти';
+            c('пиво', 'вино біле сухе', 'вино червоне сухе', 'горілка', 'ром', 'віскі', 'шампанське', 'коньяк')='алкоголь';
+            c('паста томатна', 'кетчуп томатний', 'майонез', 'сіль')='соуси та спеції';
+            c('сигарети з фільтром медіум класу', 'сигарети з фільтром преміум класу')='сигарети'
+            ")) %>% 
+  rename(name = subsection)
 
-write.csv(infliation_q1, "/home/yevheniia/Стільниця/cpi_q1_median_november_2021.csv")
+
+
+write.csv(infliation_q1, "/home/yevheniia/git/food_prices/data/cpi_q1_median_november_2021.csv")
 
 
 
@@ -113,70 +184,135 @@ write.csv(infliation_q1, "/home/yevheniia/Стільниця/cpi_q1_median_novem
 # перевірка цін, які показує держстат із цінами з супермаркету
 #==============================================================
 
-# Дані держстату
-setwd("/home/yevheniia/python/ціни_держстату/")
-govstat = read.csv("sctp_2019_u.csv", stringsAsFactors = F) %>% 
-  gather(3:14, key="month", value="value") %>% 
-  bind_rows(read.csv("sctp_20.csv", stringsAsFactors = F) %>% gather(3:14, key="month", value="value")) %>% 
-  bind_rows(read.csv("sctp_21ue.csv", stringsAsFactors = F) %>% gather(3:14, key="month", value="value")) %>% 
-  mutate(month = sub("X","", month),
-         month = sub("\\.", "-", month),
-         month = as.Date(paste0(month, "-01"), format="%Y-%m-%d"),
-         value = sub("\\,", "\\.", value),
-         value = as.numeric(value),
-         subsection=tolower(trimws(subsection)),
-         subsection = sub("філе куряче", "курка філе", subsection),
-         subsection = sub("молоко пастеризоване жирністю до 2,6% включно", "молоко 2.5%", subsection),
-         subsection = sub("сметана жирністю до 15% включно", "сметана 10-15%", subsection),
-         subsection = sub("крупи гречані", "гречка", subsection),
-         subsection = sub("яйця", "яйця курячі", subsection),
-         subsection = sub("яловичина", "яловичина без кістки", subsection),
-         subsection = sub("свинина", "свинина без кістки", subsection),
-         subsection = sub("крупи манні", "манка", subsection),
-         subsection = sub("ковбаси варені першого ґатунку", "ковбаса варена 1/ґ", subsection)
-         ) %>% 
-  mutate(value = ifelse(subsection %in% c('батон', 'горілка', 'пиво вітчизняних марок'), value *2, value)) %>% 
+item_amount = data %>% filter(time == "2021-11-17") %>% 
   group_by(subsection) %>% 
-  arrange(month) %>% 
-  mutate(inflation = paste0(formatC((value - lag(value))*100/lag(value), digits = 2))) %>% 
+  mutate(sample = n()) %>% 
   ungroup() %>% 
-  mutate(inflation = as.numeric(inflation))
+  select(subsection, sample) %>% 
+  rename(item = subsection) %>% 
+  unique()
 
-# спільні категорії товарів
-common_items = intersect(infliation_q1$subsection, govstat$subsection)
-common_items <- common_items[! common_items %in% c('сало', 'риба морожена')]
+# Дані держстату
+setwd("/home/yevheniia/git/food_prices/data/govstat_xlsx/")
+govstat_prices = read.csv("govstat_ціни.csv", skip=2) %>% select(-1) %>% 
+  gather(2:6, key="month", value="price") %>% 
+  mutate(price = gsub(',', ".", price),
+         price = as.numeric(price)) %>% 
+  rename(`item` = `X.1`) %>% 
+  filter(item != "")
 
-# порівнюємо інфляцію(вже у %) на Q1 ціни, median ціни та ціни держстату 
-chart_data = infliation_q1 %>% 
-  bind_rows(govstat %>% 
-              select(-unit) %>% 
-              mutate(measure = "govstat") 
-            ) %>% 
-  filter(subsection %in% common_items) %>% 
-  filter(month >= as.Date("2021-08-01"))
+govstat_cpi = read.csv("govstat_ІСЦ.csv", skip=2) %>% select(-1) %>% 
+  gather(2:6, key="month", value="cpi") %>% 
+  mutate(cpi = gsub(',', ".", cpi),
+         cpi = as.numeric(cpi)) %>% 
+  rename(`item` = `X.1`) %>% 
+  filter(item != "")
+
+# dictionary replacement
+months = c("Липень", "Серпень", "Вересень", "Жовтень", "Листопад")
+replacement = c("2021-07-01", "2021-08-01", "2021-09-01", "2021-10-01", "2021-11-01")
+
+govstat_data = govstat_prices %>% 
+  left_join(govstat_cpi, cpi=c("item", "month")) %>% 
+  mutate(month = str_replace_all(month, setNames(replacement, months))) %>% 
+  separate(item, c("product", "weight"), sep="\\(", remove=F) %>% 
+  select(-product) %>% 
+  mutate(weight = gsub("\\)", "", weight ),
+         weight = gsub('[А-Яа-я]', "", weight),
+         weight = gsub(',', ".", weight),
+         weight = as.numeric(weight), 
+         weight = ifelse(weight < 1, weight * 1000, weight),
+         item = gsub(" \\(\\d.*", "", item),
+         month = as.Date(month),
+         item = tolower(item))
+
+ashan_data_price = infliation_q1 %>% 
+  select(-inflation) %>% 
+  spread(key="measure", value="value") %>%  
+  rename(price_min = min, price_q1 = Q1, item = subsection) 
+
+ashan_data_cpi = infliation_q1 %>% 
+  select(-value) %>% 
+  spread(key="measure", value="inflation") %>%  
+  rename(cpi_min = min, cpi_q1 = Q1, item = subsection) %>% 
+  mutate(cpi_min = cpi_min + 100, cpi_q1 = cpi_q1 + 100)
 
 
-# Інфляція
-ggplot()+
-  geom_line(chart_data, mapping=aes(x=month, y=inflation, group=measure, color=measure))+
-  scale_y_continuous(limits=c(-50, 50))+
-  facet_wrap(~subsection, 
-            # scales="free_y",
+###########################
+# Порівняння цін
+###########################
+products = c("молоко пастеризоване жирністю до 2,6% включно", 
+             "молоко з підвищеним вмістом жиру",
+             "сметана жирністю до 15% включно", 
+             "сметана з підвищеним вмістом жиру", 
+             "ковбаси варені вищого ґатунку", 
+             "ковбаси варені першого ґатунку",
+             "сосиски, сардельки вищого ґатунку",
+             "сосиски, сардельки першого ґатунку",
+             "вироби з м’яса делікатесні"
+             )
+
+replacement_products = c("молоко 2.5%", 
+                         "молоко 3.2%",
+                         "сметана 10-15%",
+                         "сметана 20%+", 
+                         "ковбаси варені вґ", 
+                         "ковбаси варені 1ґ",
+                         "сосиски, сардельки вґ",
+                         "сосиски, сардельки 1ґ",
+                         "м’ясні делікатеси"
+                         
+                         )
+
+static_chart_data = govstat_data %>% 
+  left_join(ashan_data_price, by=c("item", "month")) %>%
+  left_join(ashan_data_cpi, by=c("item", "month")) %>% 
+  left_join(item_amount, by="item") %>% 
+  filter(sample > 10) %>% 
+  mutate(item = str_replace_all(item, setNames(replacement_products, products))) %>% 
+  mutate(price_min = ifelse(!is.na(weight), price_min/1000 * weight, price_min)) %>% 
+  mutate(price_q1 = ifelse(!is.na(weight), price_q1/1000 * weight, price_q1))
+
+plot = ggplot(static_chart_data)+
+  geom_line(mapping=aes(x=month, y=price_q1), color = '#000080')+
+  geom_line(mapping=aes(x=month, y=price_min), color = '#7CB3C5')+
+  geom_line(mapping=aes(x=month, y=price), color = '#D7005C')+
+  facet_wrap(~item, 
+             scales="free_y",
+             ncol=7)+
+  labs(title="Ціни на продукти харчування: у супермаркеті та підрахунках держстату", y="", x="")+
+  scale_colour_manual(name = '', values =c('govstat'='red', 'Q1'='green','median'='blue'), labels = c('держстат','Ашан Q1', "Ашан median"))+
+  theme_minimal()+
+  theme(
+    axis.text.y = element_blank(),
+    panel.grid = element_blank(),
+    strip.text = element_text(color="#333333")
+    
+  )
+
+cowplot::ggdraw(plot) + 
+  theme(plot.background = element_rect(fill="white", color = NA))
+  
+# Порівняння інфляцій
+ggplot(static_chart_data)+
+  geom_line(mapping=aes(x=month, y=cpi_q1), color = '#4484B4')+
+  geom_line(mapping=aes(x=month, y=cpi), color = '#D05763')+
+  facet_wrap(~item, 
+             # scales="free_y",
              ncol=5)+
+  scale_y_continuous(limits=c(80, 120))+
   labs(title="Інфляція за категоріями товарів: порівняння")+
   scale_colour_manual(name = '', values =c('govstat'='red', 'Q1'='green','median'='blue'), labels = c('держстат','Ашан Q1', "Ашан median"))+
   theme_minimal()
 
-# Ціни
-ggplot()+
-  geom_line(chart_data, mapping=aes(x=month, y=value, group=measure, color=measure))+
-  # scale_y_continuous(limits=c(-50, 50))+
-  facet_wrap(~subsection, 
-             scales="free_y",
-             ncol=5)+
-  labs(title="Ціни за категоріями товарів: порівняння")+
-  scale_colour_manual(name = '', values =c('govstat'='red', 'Q1'='green','median'='blue'), labels = c('держстат','Ашан Q1', "Ашан median"))+
-  theme_minimal()
+
+
+
+
+
+
+
+
 
 
 
@@ -188,117 +324,38 @@ quantile(rice$price_kg, c(.25, .50, .75))
 
 
 
-eggs = dataFiles %>% 
-  filter(section == "яйца" & str_detect(product, "10шт") & str_detect(time, "11-2019"))
-
-quantile(eggs$price, 0.25)
-
-
-
-
-
-
-# старе
-# ============== 2021 ===============
-
-median_price_2021_by_month = data %>%
-  filter(!(str_detect(product, "Авокадо") &
-             weight_unit == "г")) %>%
-  mutate(month = format(as.Date(time), "%Y-%m")) %>%
-  group_by(month, subsection) %>%
-  mutate(median = median(price_kg)) %>%
-  ungroup() %>%
-  select(subsection, month, median) %>%
-  unique() %>%
-  spread(key = "month", value = "median")
-
-
-
-
-
-# ============== 2020 ===============
-
-# залишаємо тільки ті id, що є у нових даних за 2021 рік, додаємо до них вагу та одиниці виміру ваги з датасету 21 року за унікальними id, також додаємо виведену категорію відповідно до споживчого набору (колонка subsection)
-year_20_filtered = year_20 %>% 
-  filter(id %in% intersect(year_20$id, data$id)) %>% 
-  distinct(id, .keep_all = T) %>% 
-  select(id, product, price)%>% 
-  mutate_all(as.character) %>% 
-  left_join(data %>% select(id, weight, weight_value, weight_unit, subsection, price, price_kg ) %>% rename(price_21 = price, price_kg_21 = price_kg), by="id") %>% 
-  mutate(price = sub(" грн/*", "", price),
-         price = sub("кг", "", price),
-         price = sub("\\s.*", "", price))%>% 
-  mutate(price =  as.numeric(price),
-         weight_value = as.numeric(weight_value),
-         price_kg = ifelse(weight_unit == "г", (price/weight_value * 1000), 
-                           ifelse(weight_unit == "кг" & weight_value == 1, price,
-                                  ifelse(weight_unit == "кг" & weight_value > 1, (price / weight_value),
-                                         ifelse(weight_unit == "мл", (price/weight_value * 1000),
-                                                ifelse(weight_unit == "л" & weight_value == 1, price,
-                                                       ifelse(weight_unit == "л" & weight_value > 1, (price / weight_value),
-                                                              ifelse(weight_unit == "шт", price,
-                                                                     NA)))))))) %>% 
-  rename(price_20 = price) %>% 
-  select(id, subsection, product, weight, weight_value, weight_unit, price_kg, price_kg_21)
-
-median_price_05_20 = year_20_filtered %>% 
-  group_by(subsection) %>% 
-  mutate(`2020-05` = median(price_kg)) %>% 
-  ungroup() %>% 
-  select(-id, -product, -weight, -weight_value, -weight_unit, -price_kg_20, -price_kg_21) %>% 
-  unique() 
-
-
-
-
-# ============== 2019 ==============
-# тут немає id, тому залишаємо за назвами продуктів, у 2021 назви українською, тому не співпадає, а от у 2020 качала рос. назви нащастя
-# приєднуємо адішники
-year_19_filtered = year_19 %>% 
-  filter(product %in% intersect(year_19$product, year_20_filtered$product)) %>% 
-  left_join(year_20_filtered %>% select(id, subsection, product, weight, weight_value, weight_unit), by="product") %>% 
-  # select(id, price) %>% 
-  mutate_all(as.character) %>% 
-  mutate(price = sub("\\s.*", "", price))%>% 
-  unique() %>% 
-  select(id, subsection, product, price, weight, weight_value, weight_unit) %>% 
-  mutate(price =  as.numeric(price),
-         weight_value = as.numeric(weight_value),
-         price_kg = ifelse(weight_unit == "г", (price/weight_value * 1000), 
-                           ifelse(weight_unit == "кг" & weight_value == 1, price,
-                                  ifelse(weight_unit == "кг" & weight_value > 1, (price / weight_value),
-                                         ifelse(weight_unit == "мл", (price/weight_value * 1000),
-                                                ifelse(weight_unit == "л" & weight_value == 1, price,
-                                                       ifelse(weight_unit == "л" & weight_value > 1, (price / weight_value),
-                                                              ifelse(weight_unit == "шт", price,
-                                                                     NA))))))))
-
-
-median_price_11_19 = year_19_filtered %>% 
-  group_by(subsection) %>% 
-  mutate(`2019-11` = median(price_kg)) %>% 
-  ungroup() %>% 
-  select(-id, -product, -weight, -weight_value, -weight_unit, -price_kg, -price) %>% 
-  unique() 
-
-
-
-
-
-infliation = median_price_11_19 %>% 
-  left_join(median_price_05_20, by="subsection") %>% 
-  left_join(median_price_2021_by_month, by="subsection") 
-
-
 library(readr)
 setwd("/home/yevheniia/git/food_prices/data/")
-df = read.csv("cpi_q1_median_november_2021.csv")
+df = read.csv("cpi_q1_median_november_2021.csv", stringsAsFactors = F) %>% 
+  rename(item = name) %>% 
+  rename(price = value)
 
-setwd("/home/yevheniia/Стільниця/")
-cpi = read.csv("ІСЦ 2017-2021.csv") %>% 
-  select(item, starts_with("X2021")) %>% 
-  mutate(item = tolower(item))
+setwd("/home/yevheniia/git/food_prices/data/govstat_xlsx/")
+cpi = read.csv("ІСЦ 2017-2021.csv", stringsAsFactors = F) %>% 
+  select(item, contains("10.01")) %>% 
+  mutate(item = tolower(item)) %>% 
+  left_join(df %>% 
+              filter(month == "2021-11-01" & measure == "Q1") %>% 
+              select(item, price) %>% 
+              rename(`2021-10-01` = price), by='item'
+  ) %>% 
+  mutate_at(c(2:6), parse_number, locale = locale(decimal_mark = ",")) %>% 
+  # mutate_at(c(2:6), as.numeric) %>% 
+  mutate(`2020-10-01` = (`2021-10-01`/X2021.10.01) * 100,
+         `2019-10-01` = (`2020-10-01`/X2020.10.01) * 100,
+         `2018-10-01` = (`2019-10-01`/X2019.10.01) * 100,
+         `2017-10-01` = (`2018-10-01`/X2018.10.01) * 100,
+         ) %>% 
+  select(1,7:11) %>% 
+  gather(2:6, key="month", value="price") %>% 
+  mutate(measure = "Q1") 
 
+df = df %>% bind_rows(cpi) %>% 
+  rename(name = item) %>% 
+  select(-X)
 
-common = intersect(cpi$item, df$name)
+setwd("/home/yevheniia/git/food_prices/data/")
+write.csv(df, "cpi_q1_median_november_2021_and_govstat_history.csv", row.names = F)
+
+# common = intersect(cpi$item, df$name)
 
