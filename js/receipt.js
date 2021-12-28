@@ -3,13 +3,14 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
     const mainColor = '#EB5757';
    
 
-    data.forEach(function(d){
+    data.forEach(function(d){           
          d.month = d3.timeParse("%Y-%m-%d")(d.month);
          d.inflation = +d.inflation;
-         d.price = +d.price;
-         d.price = d.price.toFixed(1);
+         d.price = +d.price;         
          d.count = 1;
     })
+
+    console.log(data.filter(function(d){ return d.name === "яблука"}))
  
     var items_array = data.filter(function(d){           
         return d.measure === "Q1" && 
@@ -20,6 +21,7 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
         .key(function(d) { return d.category; })
         .entries(items_array);
 
+   
 
     var itemCategory = d3.select(".shop-items")
         .selectAll("div.shop-item-category")
@@ -28,22 +30,41 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
         .append("div")
         .attr('class', "shop-item-category")
         
+    itemCategory.append("input")    
+        .attr("class", "toggle-inbox")
+        .attr("id", function(d,i){ return "_"+i })
+        .attr("type", "checkbox")
+
+    itemCategory.append("label")
+        .attr("class", "label")
+        .attr("for", function(d,i){ return "_"+i })
+        .text(function(d){  return d.key })
+        .on("click", function(){
+            d3.select(this.parentNode)
+                .selectAll(".wrapper")                
+                .classed("hidden", !d3.select(this.parentNode).selectAll(".wrapper").classed("hidden"))
+
+        })
+
         
-        itemCategory.append("h4") 
+/*     itemCategory.append("h4") 
         .text(function(d){  return d.key })
         .on("click", function(){
             d3.select(this.parentNode).selectAll(".shop-item").classed("hidden", !d3.select(this.parentNode).selectAll(".shop-item").classed("hidden"))
 
-        })
+        }) */
 
 
     var itemDetails = itemCategory
+        .append("div")
+        .attr("class", "wrapper")
+        .classed("hidden", true)
         .selectAll("div.shop-item")
         .data(function(d){ return d.values}) 
         .enter()       
         .append("div")
         .attr("class", "shop-item")
-        .classed("hidden", true)
+        //.classed("hidden", true)
         .append("div")
         .attr("class", "shop-item-details");
 
@@ -113,7 +134,7 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
         function addToCartClicked(event) {
             var button = event.target
             //button.style.backgroundColor = "#73B2DF"
-            button.style.backgroundColor = '#64BAAA';
+            button.style.backgroundColor = '#a0ba92';
             var shopItem = button.parentElement.parentElement
             var title = shopItem.getElementsByClassName('shop-item-title')[0].innerText
             var price = shopItem.getElementsByClassName('shop-item-price')[0].innerText
@@ -144,7 +165,7 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
                 </div>               
                 <span data-infliation='${infliation}' class="cart-price_q1 cart-column">${price}</span>
                 <span data-infliation='${infliation}' class="cart-price_median cart-column">${ ((price / (infliation + 100)) *100).toFixed(2) }</span>
-                <span class="cart-item_infliation cart-column">${infliation + 100}</span>
+                <span class="cart-item_infliation cart-column">${infliation}</span>
                 <div class="cart-quantity cart-column">
                     <input class="cart-quantity-input" type="number" value="1">
                     <button class="btn btn-danger" type="button">&#x2715</button>
@@ -208,24 +229,13 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
         };
 
         function drawCharts(){
-            d3.select("#my_dataviz").selectAll("svg").remove();
-
-       
+            d3.select("#my_dataviz").selectAll("svg").remove();       
 
             var chartsData = data.filter(function(k){
-                return cart.includes(k.name) & k.measure === "Q1";
+                return cart.includes(k.name) & (k.measure === "Q1" | k.measure === "govstat");
             }) 
 
-            chartsData = chartsData.sort(function(a,b){
-                return a.month - b.month
-            })
-
-           /*  chartsData.forEach(function(d){
-                d.month = d3.timeParse("%Y-%m-%d")(d.month);
-                //d.price = +d.price;
-            }) */
-
-            console.log(chartsData);
+            
 
             var margin = {top: 30, right: 0, bottom: 30, left: 60},
                 width = 210 - margin.left - margin.right,
@@ -241,9 +251,11 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
             allKeys = sumstat.map(function(d){return d.key})
 
             // Add an svg element for each group. The will be one beside each other and will go on the next row when no more room available
-            sumstat.forEach(function(item){
+            sumstat.forEach(function(item){   
+                item.values = item.values.sort(function(a,b){
+                    return a.month - b.month
+                })                  
 
-                console.log(item)
                 var svg = d3.select("#my_dataviz")
                     .append("svg")
                     .attr("width", width + margin.left + margin.right)
@@ -253,7 +265,8 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
                     "translate(" + margin.left + "," + margin.top + ")");
 
                 var x = d3.scaleTime()
-                    .domain(d3.extent(item.values, function(d) { return d.month; }))
+                   // .domain(d3.extent(item.values, function(d) { return d.month; }))
+                   .domain([new Date("2018-01-01"), new Date("2021-12-31")])
                     .range([ 0, width ]);
     
     
@@ -262,11 +275,42 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
                     .attr("transform", "translate(0," + height + ")")
                     .call(d3.axisBottom(x).ticks(3));
 
+                var yMax =     d3.max(item.values, function(d) { return parseFloat(d.price); })
+
                 var y = d3.scaleLinear()
-                    .domain([0, d3.max(item.values, function(d) { return +d.price; })])
+                    //.domain(d3.extent(item.values, function(d) { return parseFloat(d.price); }))
+                    .domain([0, yMax * 2])
                     .range([ height, 0 ]); 
 
                 svg
+                    .append("g")
+                    //.attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisLeft(y).ticks(5));              
+
+                svg
+                    .append("path")
+                    .attr("fill", "none")
+                    .attr("stroke", "lightgrey")
+                    .attr("stroke-width", 1)
+                    .attr("d", function(){
+                        
+                    return d3.line()
+                        .x(function(d) { return x(d.month); })
+                        .y(function(d) { return y(+d.price); })
+                        (item.values.filter(function(k){ return k.measure === "govstat"})) 
+                    });
+
+                svg.selectAll('circle')
+                    .data(item.values.filter(function(k){ return k.measure === "govstat"}))
+                    .enter()
+                    .append('circle')
+                    .attr("cx", function(d){ return x(d.month); })
+                    .attr("cy", function(d){ return y(+d.price); })
+                    .attr("r", 2)
+                    .attr("fill", "grey");
+
+
+                 svg
                     .append("path")
                     .attr("fill", "none")
                     .attr("stroke", mainColor)
@@ -276,7 +320,7 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
                     return  d3.line()
                         .x(function(d) { return x(d.month); })
                         .y(function(d) { return y(+d.price); })
-                        (item.values) 
+                        (item.values.filter(function(k){ return k.measure === "Q1"})) 
                     })
 
                 // Add titles
@@ -285,65 +329,11 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
                     .attr("text-anchor", "start")
                     .attr("y", -5)
                     .attr("x", 0)
-                    .text(function(d){ return(item.key)})
+                    .text(function(){ return(item.key)})
                     .style("fill", '#333')
 
 
             })
-
-            /* var svg = d3.select("#my_dataviz")
-                .selectAll("uniqueChart")
-                .data(sumstat)
-                .enter()
-                .append("svg")
-                    .attr("width", width + margin.left + margin.right)
-                    .attr("height", height + margin.top + margin.bottom)               
-                .append("g")               
-                .attr("transform",
-                    "translate(" + margin.left + "," + margin.top + ")");
-
-                
-
-            // Add X axis --> it is a date format
-            var x = d3.scaleTime()
-                .domain(d3.extent(chartsData, function(d) { return d.month; }))
-                .range([ 0, width ]);
-
-
-            svg
-                .append("g")
-                .attr("transform", "translate(0," + height + ")")
-                .call(d3.axisBottom(x).ticks(3));
-
-            //Add Y axis
-            var y = d3.scaleLinear()
-                .domain([0, d3.max(chartsData, function(d) { return +d.price; })])
-                .range([ height, 0 ]); 
-
-
-            // Draw the line
-            svg
-            .append("path")
-                .attr("fill", "none")
-                .attr("stroke", mainColor)
-                .attr("stroke-width", 1.9)
-                .attr("d", function(d){
-                return  d3.line()
-                    .x(function(d) { return x(d.month); })
-                    .y(function(d) { return y(+d.price); })
-                    (d.values) 
-                })
-
-            // Add titles
-            svg
-                .append("text")
-                .attr("text-anchor", "start")
-                .attr("y", -5)
-                .attr("x", 0)
-                .text(function(d){ return(d.key)})
-                .style("fill", '#333') */
-
-
 
         }
 

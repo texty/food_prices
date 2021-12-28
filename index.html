@@ -36,7 +36,7 @@ h1 {
     margin: auto;
 }
 
-.subtitle {
+.subtitle, p {
     max-width: 600px;
     margin: 50px auto;
     font-weight: normal;
@@ -88,8 +88,74 @@ main {
   background-color: #FFF6EF;
 }
 
+.wrapper {
+    margin-top: 10px;
+    transition: max-height 2s ease-out;
+    max-height: max-content;
+}
+
 .hidden {
-    display: none
+    max-height:0;
+    overflow-y: hidden;
+    transition: max-height 2s ease-out;
+   /*  display: none */
+}
+
+.shop-item-category .drop-down {
+    cursor: pointer;
+    position: relative;
+    top: 0px;
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-right: 0.15em solid black;
+    border-top: 0.15em solid black;
+    transform: rotate(135deg);
+    margin-right: 0.5em;
+    margin-left: 1.0em;
+}
+
+.toggle-inbox {
+   display: none;
+}
+
+/* .toggle-inbox ~ div.shop-item {
+   display: none;
+   margin-bottom: 10px;
+   clear: both;
+}
+.toggle-inbox:checked ~ div.shop-item {
+   display: block;
+} */
+.toggle-inbox:not(:checked) + label:after {
+/* .label::after { */
+    cursor: pointer;
+    position: relative;
+    top: 0px;
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-right: 0.15em solid black;
+    border-top: 0.15em solid black;
+    transform: rotate(135deg);
+    margin-right: 0.5em;
+    margin-left: 1.0em;
+}
+.toggle-inbox:checked +.label::after {
+    cursor: pointer;
+    position: relative;
+    top: 5px;
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-right: 0.15em solid black;
+    border-top: 0.15em solid black;
+    transform: rotate(315deg);
+    margin-right: 0.5em;
+    margin-left: 1.0em;
 }
 
 
@@ -123,6 +189,7 @@ main {
 .shop-items {
    display: block;
    flex-wrap: wrap;
+   margin-bottom: 100px;
    /* justify-content: space-around;  */
 }
 
@@ -269,9 +336,12 @@ main {
     </style>
     <body> 
         <header> 
-            <h1>"Ото нехай спочатку нормально інфляцію порахують!"</h1>
+            <h1>Інфляція. Пісочниця</h1>
         </header>
-        <h3 class='subtitle'>Держстат каже, що за рік інфляція скала ..., а за останній місяць .... А як її відчувають українці? Ціни постійно зростають чи іноді все-таки ж падають? Ми вирішили перевірити, чи можна довіряти розрахункам держстату про рівень інфляції. А також як і чому ми можемо відчуваємо інфляцію більшою</h3>  
+        <h3 class='subtitle'>Держстат каже, що за рік інфляція скала ..., а за останній місяць .... А як її відчувають українці? Ціни постійно зростають чи іноді все-таки ж падають? Ми вирішили перевірити, чи можна довіряти розрахункам держстату про рівень інфляції. А також як і чому ми можемо відчуваємо інфляцію по-іншому.</h3>  
+
+        <p>На графіку нижче ми порівняли ціни на продукти, зібрані держстатом із цінами у популярному супермаркеті. Світло-блакитна лінія - це мінімальна ціна на цю категорію товарів у супермаркеті, темно-синя - перший квартиль цін, червона лінія - ціни держстату. Відмитимо, що держстат збирає дані за суворою методологією на ті самі продукти, або їх відповідні аналоги, ми ж в нашій пісочниці  взяли всі товари, що є у торгівельній мережі.</p>
+        <p>Тим не менш, навіть такий грубий розрахунок показує, що держстат враховує реальні ціни для підрахунку інфляції. У більшості випадків - ціни держстату вищі за наявні мінімальні, ближчі до першого квартиля (25% усіх цін на цю категорію продукту)</p>
         <img style="display: block; max-width:1000px; margin: auto;" src='img/Rplot02.png'/>
        
         <h2 style="display: block; max-width:1000px; margin: 100px auto 0;">Яка твоя персональна інфляція</h2>
@@ -298,7 +368,7 @@ main {
           
             <div class="cart-row">
                 <span class="cart-item cart-header cart-column">назва</span>
-                <span class="cart-price_q1 cart-header cart-column">ціна у листтопаді</span>
+                <span class="cart-price_q1 cart-header cart-column">ціна у листопаді</span>
                 <span class="cart-price_median cart-header cart-column">ціна у жовтні</span>
                 <span class="cart-item_infliation cart-header cart-column">інфляція розрахована</span>           
                 <span class="cart-quantity cart-header cart-column">кількість</span>
@@ -323,7 +393,10 @@ main {
 
             <button class="btn btn-primary btn-drawcharts" type="button">подивитись історію цін на обрані продукти</button>
 
-
+            <div id="charts_legend">
+                <span>сумермаркет <span style="background-color:red; width: 30px; height: 2px; display: inline-block; margin-right: 50px"> </span></span>
+                <span>держстат <span style="background-color:grey; width: 30px; height: 1px; display: inline-block; margin-right: 50px"> </span></span>
+            </div> 
             <div id='my_dataviz'></div>
 
         </section> 
