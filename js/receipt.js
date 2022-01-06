@@ -1,17 +1,19 @@
+
+const darkBlue = '#324563';
+
 d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function(data){  
 
-    const mainColor = '#EB5757';
-   
+    const mainColor = '#EB5757';   
 
     data.forEach(function(d){           
          d.month = d3.timeParse("%Y-%m-%d")(d.month);
          d.inflation = +d.inflation;
-         d.price = +d.price;         
+         d.price = +d.price/10;         
          d.count = 1;
     })
 
-    console.log(data.filter(function(d){ return d.name === "яблука"}))
- 
+/*     console.log(data.filter(function(d){ return d.name === "яблука"})) */ 
+
     var items_array = data.filter(function(d){           
         return d.measure === "Q1" && 
             d.month.getTime() === new Date("2021-11-01T00:00:00").getTime() 
@@ -134,7 +136,9 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
         function addToCartClicked(event) {
             var button = event.target
             //button.style.backgroundColor = "#73B2DF"
-            button.style.backgroundColor = '#a0ba92';
+            button.classList.add('shop-item-clicked')
+            button.style.backgroundColor = darkBlue;
+            button.style.color = "white";
             var shopItem = button.parentElement.parentElement
             var title = shopItem.getElementsByClassName('shop-item-title')[0].innerText
             var price = shopItem.getElementsByClassName('shop-item-price')[0].innerText
@@ -159,15 +163,17 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
                     return
                 }
             }
+
+
             var cartRowContents = `
                 <div class="cart-item cart-column">
                     <span class="cart-item-title">${title}</span>
                 </div>               
-                <span data-infliation='${infliation}' class="cart-price_q1 cart-column">${price}</span>
-                <span data-infliation='${infliation}' class="cart-price_median cart-column">${ ((price / (infliation + 100)) *100).toFixed(2) }</span>
-                <span class="cart-item_infliation cart-column">${infliation}</span>
+                <span data-infliation='${infliation}' class="cart-price_q1 cart-column">${price.toFixed(2)}</span>
+                <span data-infliation='${infliation}' class="cart-price_median cart-column">${ ((price / (infliation)) * 100).toFixed(2) }</span>
+                <span class="cart-item_infliation cart-column">${infliation + '%'}</span>
                 <div class="cart-quantity cart-column">
-                    <input class="cart-quantity-input" type="number" value="1">
+                    <input class="cart-quantity-input" type="number" min=”0″ value="0.1" step="0.1" lang="en">
                     <button class="btn btn-danger" type="button">&#x2715</button>
                 </div>`
             cartRow.innerHTML = cartRowContents
@@ -193,20 +199,19 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
 
                 //ціна за останній місяць для кошику
                 var InflQ1 = cartRow.getElementsByClassName('cart-price_q1')[0].getAttribute('data-infliation')
-                var price_q1 = parseFloat(cartRow.getElementsByClassName('cart-price_q1')[0].innerText)                
+                var price_q1 = parseFloat(cartRow.getElementsByClassName('cart-price_q1')[0].innerText)    
                 
-                // TODO: поки що тут не медіана, а стара ціна, треба подумати, чи потрібна медіана
                 var price_median = parseFloat(cartRow.getElementsByClassName('cart-price_median')[0].innerText)                
                
                 var quantity = cartRow.getElementsByClassName('cart-quantity-input')[0].value;
 
-                //перераховуємо "усього"
-                total_q1 = total_q1 + (price_q1 * quantity)
-                total_median = total_median + (price_median * quantity)
+                //перераховуємо "усього", базова одиниця в нас 0.1 (тобто 100 гр) через те, що є часник, кава та інші продукти, де кг- це забагато.
+                total_q1 = total_q1 + (price_q1 * (quantity/0.1))
+                total_median = total_median + (price_median * (quantity/0.1))
                 
                 //масив із середніми значеннями ІСЦ на основі вагових коеффіцієнтів
-                formula.push(parseFloat(InflQ1) * parseInt(quantity))                
-                count =  count + parseInt(quantity);
+                formula.push(parseFloat(InflQ1) * parseFloat(quantity))                
+                count =  count + parseFloat(quantity);
                      
             }
             total_q1 = Math.round(total_q1 * 100) / 100
@@ -215,9 +220,9 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
             //розмір персональної інфляції на основі вагових коефіцієнтів
             var personal_q1_inliation = formula.reduce( function(a, b){ return  a + b}, 0) / count; 
             
-            document.getElementsByClassName('cart-total-q1')[0].innerText =  total_q1
+            document.getElementsByClassName('cart-total-q1')[0].innerText = total_q1
             document.getElementsByClassName('cart-total-median')[0].innerText =  total_median
-            document.getElementsByClassName('infliation-total-q1')[0].innerText = 100 + personal_q1_inliation > 0 ? (100 + personal_q1_inliation).toFixed(1) + "%" : '0%';
+            document.getElementsByClassName('infliation-total-q1')[0].innerText = personal_q1_inliation > 0 ? (personal_q1_inliation).toFixed(1) + "%" : '0%';
             document.getElementsByClassName('infliation-total-median')[0].innerText = (total_q1/(total_median/100)).toFixed(1) + "%";
             
         }
@@ -338,6 +343,7 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
         }
 
         d3.select('.btn-drawcharts').on('click', drawCharts);
+
         function bouncer(arr) {
             return arr.filter(Boolean);
           }

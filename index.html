@@ -6,334 +6,9 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
-       <!--  <link rel="stylesheet" href="styles.css" />
-        <script src="store.js" async></script> -->
+        <link rel="stylesheet" href="css/styles.css" />
+        <!--<script src="store.js" async></script> -->
     </head>
-    <style>
-* {
-    box-sizing: border-box;
-    font-family: Raleway;
-    
-}
-
-html, body {
-    margin: 0;
-    padding: 0;
-    min-height: 100%;
-    font-family: 'Fira Sans', sans-serif;
-    line-height: 1.6;
-}
-
-header {
-    min-height:50vh;
-    text-align: center;
-    display: flex;
-    background-color: #FFF6EF;
-}
-
-h1 {
-    max-width: 80%;
-    margin: auto;
-}
-
-.subtitle, p {
-    max-width: 600px;
-    margin: 50px auto;
-    font-weight: normal;
-}
-
-main {
-    display: grid;
-    grid-template-columns: 1fr 3fr;
-}
-
-.content-section {
-    margin: 1em;
-}
-
-.container {
-   /*  max-width: 900px; */
-    margin: 0 auto;
-    padding: 0 1.5em;
-}
-.section-header {
-    font-family: "Metal Mania";
-    font-weight: normal;
-    color: #333;
-    /*text-align: center;
-     font-size: 2.5em; */
-}
-
-.btn {
-    text-align: center;
-    vertical-align: middle;
-    padding: .67em .67em;
-    cursor: pointer;
-}
-
-
-.btn-primary {
-    border: none;
-    border-radius: .3em;
-    font-weight: bold;
-    border: 1px dashed grey;
-    background-color: white;
-}
-
-.btn-primary:hover {
-    background-color: #eee;
-}
-
-.shop-items {
-  background-color: #FFF6EF;
-}
-
-.wrapper {
-    margin-top: 10px;
-    transition: max-height 2s ease-out;
-    max-height: max-content;
-}
-
-.hidden {
-    max-height:0;
-    overflow-y: hidden;
-    transition: max-height 2s ease-out;
-   /*  display: none */
-}
-
-.shop-item-category .drop-down {
-    cursor: pointer;
-    position: relative;
-    top: 0px;
-    content: "";
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-right: 0.15em solid black;
-    border-top: 0.15em solid black;
-    transform: rotate(135deg);
-    margin-right: 0.5em;
-    margin-left: 1.0em;
-}
-
-.toggle-inbox {
-   display: none;
-}
-
-/* .toggle-inbox ~ div.shop-item {
-   display: none;
-   margin-bottom: 10px;
-   clear: both;
-}
-.toggle-inbox:checked ~ div.shop-item {
-   display: block;
-} */
-.toggle-inbox:not(:checked) + label:after {
-/* .label::after { */
-    cursor: pointer;
-    position: relative;
-    top: 0px;
-    content: "";
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-right: 0.15em solid black;
-    border-top: 0.15em solid black;
-    transform: rotate(135deg);
-    margin-right: 0.5em;
-    margin-left: 1.0em;
-}
-.toggle-inbox:checked +.label::after {
-    cursor: pointer;
-    position: relative;
-    top: 5px;
-    content: "";
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-right: 0.15em solid black;
-    border-top: 0.15em solid black;
-    transform: rotate(315deg);
-    margin-right: 0.5em;
-    margin-left: 1.0em;
-}
-
-
-.shop-item-title {
-     display: none; 
-   /*  display: block; */
-    width: 100%;
-    text-align: center;
-    font-weight: bold;
-   /*  font-size: 1.5em; */
-    color: #333;
-    margin-bottom: 15px;
-}
-
-.shop-item-image {
-    height: 250px;
-}
-
-.shop-item-details {   
- /*    display: flex;
-    align-items: center; */
-    padding: 5px;
-}
-
-.shop-item-price {
-    display: none;
-    flex-grow: 1;
-    color: #333;
-}
-
-.shop-items {
-   display: block;
-   flex-wrap: wrap;
-   margin-bottom: 100px;
-   /* justify-content: space-around;  */
-}
-
-.cart-header {
-    font-weight: bold;
-    font-size: 1.25em;
-    color: #333;
-}
-
-.cart-items {
-    border-bottom: 1px dashed grey;
-    max-height: 40vh;
-    overflow-y: auto;
-}
-
-.cart-column {
-    display: flex;
-    align-items: center;
-    /* border-bottom: 1px solid black; */
-    margin-right: 1.5em;
-   /*  padding-bottom: 10px; */
-    margin-top: 10px;
-}
-
-.cart-row {
-    font-size: 12px;
-    display: grid;
-    grid-template-columns: 4.5fr 2fr  2fr 2fr 3.5fr;
-}
-
-.cart-item {    
-     width: 45%;
-}
-
-.cart-price {
-    width: 20%;
-    font-size: 1.2em;
-    color: #333;
-}
-
-.cart-quantity {
-    width: 35%;
-}
-
-.cart-item-title {
-    color: #333;
-    font-size: 1.2em;
-}
-
-.cart-item-image {
-    width: 75px;
-    height: auto;
-    border-radius: 10px;
-}
-
-.btn-danger {
-    color: #EB5757;
-    background-color: white;
-    border: none;
-    border-radius: .3em;
-    font-weight: bold;
-}
-
-.btn-danger:hover {
-    color: black;
-}
-
-.cart-quantity-input {
-    height: 30px;
-    width: 50px;
-    border-radius: 5px;
-    border: 1px solid #64BAAA;
-    background-color: #eee;
-    color: #333;
-    padding: 0;
-    text-align: center;
-    font-size: 1.2em;
-    margin-right: 25px;
-}
-
-/* .cart-row:last-child {
-    border-bottom: 1px solid black;
-} */
-
-.cart-row:last-child .cart-column {
-    border: none;
-}
-
-.cart-total, .infliation-total {
-    display: grid;
-    grid-template-columns: 4.5fr 2fr 2fr 2fr 3.5fr;
-    text-align: left;
-    margin-top: 10px;
-    margin-right: 10px;
-}
-
-.infliation-total {
-    color: #EB5757;
-}
-
-.cart-total {
-    /* border-top: 1px solid black;
-    margin-top: 20px; */
-}
-
-.cart-total-title {
-    font-weight: bold;
-    /* font-size: 1.5em; */
-    color: black;
-    margin-right: 20px;
-}
-
-.cart-total-q1, .cart-total-median {
-    color: #333;
-    font-size: 1.1em;
-}
-
-.btn-purchase {
-    display: block;
-    border: 1px dashed grey;
-    background-color: white;
-    margin: auto 20px;
-    border: 1px dashed #EB5757;
-    color: #EB5757;
-    /* font-size: 1.75em; */
-}
-
-.btn-drawcharts {
-    display: block;
-    border: 1px dashed black;
-    color: black;
-    background-color: white;
-    margin: 50px auto;
-}
-
-/* #my_dataviz {
-    display: block;
-}
-
-#my_dataviz svg {
-    display: block;
-} */
-
-    </style>
     <body> 
         <header> 
             <h1>Інфляція. Пісочниця</h1>
@@ -342,13 +17,14 @@ main {
 
         <p>На графіку нижче ми порівняли ціни на продукти, зібрані держстатом із цінами у популярному супермаркеті. Світло-блакитна лінія - це мінімальна ціна на цю категорію товарів у супермаркеті, темно-синя - перший квартиль цін, червона лінія - ціни держстату. Відмитимо, що держстат збирає дані за суворою методологією на ті самі продукти, або їх відповідні аналоги, ми ж в нашій пісочниці  взяли всі товари, що є у торгівельній мережі.</p>
         <p>Тим не менш, навіть такий грубий розрахунок показує, що держстат враховує реальні ціни для підрахунку інфляції. У більшості випадків - ціни держстату вищі за наявні мінімальні, ближчі до першого квартиля (25% усіх цін на цю категорію продукту)</p>
-        <img style="display: block; max-width:1000px; margin: auto;" src='img/Rplot02.png'/>
-       
-        <h2 style="display: block; max-width:1000px; margin: 100px auto 0;">Яка твоя персональна інфляція</h2>
+<!--         <img style="display: block; max-width:1000px; margin: auto;" src='img/Rplot02.png'/>
+ -->       
+  
         <main>   
+            <h2>Яка твоя персональна інфляція</h2>
            
-           
-            <section class="container content-section">          
+            <section class="container content-section">      
+                <h3 class="section-header">Оберіть продукти</h3>    
                 <div class="shop-items">
                     <!-- <div class="shop-item">                   
                         <div class="shop-item-details">
@@ -362,16 +38,16 @@ main {
 
         <section class="container content-section" style="position:sticky; top:0; height:max-content;">
            <div style='display: flex; align-items: center;'>
-            <h2 class="section-header">Обрані продукти</h2> 
+            <h3 class="section-header">Обрані продукти</h3> 
             <button class="btn btn-primary btn-purchase" type="button">очистити кошик</button>
            </div> 
           
             <div class="cart-row">
                 <span class="cart-item cart-header cart-column">назва</span>
-                <span class="cart-price_q1 cart-header cart-column">ціна у листопаді</span>
-                <span class="cart-price_median cart-header cart-column">ціна у жовтні</span>
-                <span class="cart-item_infliation cart-header cart-column">інфляція розрахована</span>           
-                <span class="cart-quantity cart-header cart-column">кількість</span>
+                <span class="cart-price_q1 cart-header cart-column">ціна за 100гр <br>листопад</span>
+                <span class="cart-price_median cart-header cart-column">ціна за 100гр<br>жовтень</span>
+                <span class="cart-item_infliation cart-header cart-column">інфляція за місяць</span>           
+                <span class="cart-quantity cart-header cart-column">кг</span>
             </div>
             <div class="cart-items">
             </div>
@@ -379,13 +55,18 @@ main {
                 <strong class="cart-total-title">Усього</strong>
                 <span class="cart-total-q1">0</span>
                 <span class="cart-total-median">0</span>
-                <span class="infliation-total-q1">0 %</span>
+                <div><span style="color: red; font-weight: bold" class="infliation-total-q1">0%</span> 
+                    <span style='font-size:12px;color: red;'>розрахована</span>
+                </div>
+                
                 
                 <span class=""></span>
             </div>
             <div class="infliation-total">
-                <strong class="infliation-total-title">Різниця між сумою чеків</strong> 
-                <span class="infliation-total-median" style='grid-column:4/5; font-weight: bold;'>0 %</span>               
+                <strong class="infliation-total-title"></strong> 
+                <div  style='grid-column:4/6; font-weight: bold;'><span class="infliation-total-median">0%</span>     
+                    <span style='font-size:12px;color: #324563;'>різниця між сумою чеків</span> 
+                </div>
                
                 <span class=""></span>
             </div>
@@ -393,11 +74,13 @@ main {
 
             <button class="btn btn-primary btn-drawcharts" type="button">подивитись історію цін на обрані продукти</button>
 
-            <div id="charts_legend">
-                <span>сумермаркет <span style="background-color:red; width: 30px; height: 2px; display: inline-block; margin-right: 50px"> </span></span>
-                <span>держстат <span style="background-color:grey; width: 30px; height: 1px; display: inline-block; margin-right: 50px"> </span></span>
-            </div> 
-            <div id='my_dataviz'></div>
+        
+            <div id='my_dataviz'>
+                <div id="charts_legend">
+                    <span>сумермаркет <span style="background-color:red; width: 30px; height: 2px; display: inline-block; margin-right: 50px"> </span></span>
+                    <span>держстат <span style="background-color:grey; width: 30px; height: 1px; display: inline-block; margin-right: 50px"> </span></span>
+                </div> 
+            </div>
 
         </section> 
 
