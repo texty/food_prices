@@ -1,22 +1,21 @@
 
 const darkBlue = '#324563';
 
-d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function(data){  
+d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(data){  
 
     const mainColor = '#EB5757';   
 
     data.forEach(function(d){           
          d.month = d3.timeParse("%Y-%m-%d")(d.month);
          d.inflation = +d.inflation;
-         d.price = +d.price/10;         
+         d.price = +d.price/10;   // щоб зменшити коефіцієнт ваги товарів, які купуються по-троху (часник, кава, вершкове масло тощо)      
          d.count = 1;
     })
 
-/*     console.log(data.filter(function(d){ return d.name === "яблука"})) */ 
 
     var items_array = data.filter(function(d){           
         return d.measure === "Q1" && 
-            d.month.getTime() === new Date("2021-11-01T00:00:00").getTime() 
+            d.month.getTime() === new Date("2021-12-01T00:00:00").getTime() 
     })
 
     var nested_data = d3.nest()
@@ -24,7 +23,6 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
         .entries(items_array);
 
    
-
     var itemCategory = d3.select(".shop-items")
         .selectAll("div.shop-item-category")
         .data(nested_data)
@@ -49,15 +47,7 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
         })
 
         
-/*     itemCategory.append("h4") 
-        .text(function(d){  return d.key })
-        .on("click", function(){
-            d3.select(this.parentNode).selectAll(".shop-item").classed("hidden", !d3.select(this.parentNode).selectAll(".shop-item").classed("hidden"))
-
-        }) */
-
-
-    var itemDetails = itemCategory
+   var itemDetails = itemCategory
         .append("div")
         .attr("class", "wrapper")
         .classed("hidden", true)
@@ -66,7 +56,6 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
         .enter()       
         .append("div")
         .attr("class", "shop-item")
-        //.classed("hidden", true)
         .append("div")
         .attr("class", "shop-item-details");
 
@@ -74,7 +63,7 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
         .append("span")
         .attr('class', "shop-item-title")
         .text(function(d){            
-            return d.name })
+            return d.short_name })
  
     itemDetails
         .append("span")
@@ -86,7 +75,7 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
         .append("button")
         .attr('class', "btn btn-primary shop-item-button")
         .attr("type", "button")
-        .text(function(d){ return d.name});
+        .text(function(d){ return d.short_name});
 
     var cart = [];
 
@@ -116,12 +105,26 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
             while (cartItems.hasChildNodes()) {
                 cartItems.removeChild(cartItems.firstChild)
             }
-            updateCartTotal()
+            cart=[];
+            updateCartTotal();
+            let clickedItems = document.getElementsByClassName('shop-item-button');
+            console.log(clickedItems);
+            for(var i = 0; i < clickedItems.length; i++){
+                clickedItems[i].classList.remove('shop-item-clicked')
+            }
         }
         
         function removeCartItem(event) {
             var buttonClicked = event.target
-            buttonClicked.parentElement.parentElement.remove()
+            buttonClicked.parentElement.parentElement.remove();
+            let valueToRemove = buttonClicked.parentElement.parentElement.getElementsByClassName("cart-item-title")[0].innerHTML;
+            let allProducts = document.getElementsByClassName('shop-item-button');
+            for(var i = 0; i < allProducts.length; i++){
+                if(allProducts[i].innerHTML === valueToRemove) {
+                    allProducts[i].classList.remove('shop-item-clicked')
+                }
+            }
+            cart=[];
             updateCartTotal();
         }
         
@@ -134,11 +137,8 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
         }
         
         function addToCartClicked(event) {
-            var button = event.target
-            //button.style.backgroundColor = "#73B2DF"
-            button.classList.add('shop-item-clicked')
-            button.style.backgroundColor = darkBlue;
-            button.style.color = "white";
+            var button = event.target           
+            button.classList.add('shop-item-clicked')          
             var shopItem = button.parentElement.parentElement
             var title = shopItem.getElementsByClassName('shop-item-title')[0].innerText
             var price = shopItem.getElementsByClassName('shop-item-price')[0].innerText
@@ -148,6 +148,7 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
         }
         
         function addItemToCart(title, price, infliation) {
+            cart = []
             price = parseFloat(price);
             infliation = parseFloat(infliation);
             var cartRow = document.createElement('div')
@@ -182,8 +183,7 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
             cartRow.getElementsByClassName('cart-quantity-input')[0].addEventListener('change', quantityChanged)
         }
         
-        function updateCartTotal() {    
-            //cart = [];        
+        function updateCartTotal() {                     
             var formula = []                    
             var count = 0;
             var cartItemContainer = document.getElementsByClassName('cart-items')[0]
@@ -224,6 +224,8 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
             document.getElementsByClassName('cart-total-median')[0].innerText =  total_median
             document.getElementsByClassName('infliation-total-q1')[0].innerText = personal_q1_inliation > 0 ? (personal_q1_inliation).toFixed(1) + "%" : '0%';
             document.getElementsByClassName('infliation-total-median')[0].innerText = (total_q1/(total_median/100)).toFixed(1) + "%";
+
+            drawCharts();
             
         }
 
@@ -235,15 +237,18 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
 
         function drawCharts(){
             d3.select("#my_dataviz").selectAll("svg").remove();       
+            d3.select('#charts_legend').style("display", "block")
 
             var chartsData = data.filter(function(k){
-                return cart.includes(k.name) & (k.measure === "Q1" | k.measure === "govstat");
+                return cart.includes(k.short_name) & (k.measure === "Q1" | k.measure === "govstat");
             }) 
 
+            //сортуємо дані в тому порядку, як вони йдуть в коризині
+            chartsData.sort(function(a,b) { return cart.indexOf(a.name) - cart.indexOf(b.name)})
             
 
             var margin = {top: 30, right: 0, bottom: 30, left: 60},
-                width = 210 - margin.left - margin.right,
+                width = 300 - margin.left - margin.right,
                 height = 210 - margin.top - margin.bottom;
 
            
@@ -271,16 +276,49 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
 
                 var x = d3.scaleTime()
                    // .domain(d3.extent(item.values, function(d) { return d.month; }))
-                   .domain([new Date("2018-01-01"), new Date("2021-12-31")])
-                    .range([ 0, width ]);
+                   .domain([new Date("2017-10-01"), new Date("2022-03-31")])
+                   .range([ 0, width ]);
     
     
                 svg
                     .append("g")
                     .attr("transform", "translate(0," + height + ")")
-                    .call(d3.axisBottom(x).ticks(3));
+                    .call(d3.axisBottom(x)
+                    .tickValues([
+                        new Date('2017-10-01'), 
+                        new Date('2018-10-01'), 
+                        new Date('2019-10-01'), 
+                        new Date('2020-10-01'),                 
+                        new Date('2021-08-01'),
+                        new Date('2021-09-01'),
+                        new Date('2021-10-01'),
+                        new Date('2021-11-01'),
+                        new Date('2021-12-01'),
+                        new Date('2022-01-01'),                       
+                    ])
+                        .tickSize(-height)
+                        .tickFormat(function(d){ return ""})
+                        
+                    );
 
-                var yMax =     d3.max(item.values, function(d) { return parseFloat(d.price); })
+                    svg
+                    .append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x)                    
+                        .tickValues([
+                            new Date('2017-10-01'), 
+                            new Date('2018-10-01'), 
+                            new Date('2019-10-01'), 
+                            new Date('2020-10-01'),
+                            new Date('2021-10-01'),
+                            new Date('2022-10-01'),
+                           
+                        ]) 
+                     .tickFormat(d3.timeFormat("%m/%Y"))
+                        
+                    );
+
+                var yMax = d3.max(item.values, function(d) { return parseFloat(d.price) *10; })
 
                 var y = d3.scaleLinear()
                     //.domain(d3.extent(item.values, function(d) { return parseFloat(d.price); }))
@@ -301,32 +339,31 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
                         
                     return d3.line()
                         .x(function(d) { return x(d.month); })
-                        .y(function(d) { return y(+d.price); })
+                        .y(function(d) { return y(+d.price*10); })
                         (item.values.filter(function(k){ return k.measure === "govstat"})) 
                     });
 
                 svg.selectAll('circle')
-                    .data(item.values.filter(function(k){ return k.measure === "govstat"}))
+                    .data(item.values.filter(function(k){ return k.measure === "Q1"}))
                     .enter()
                     .append('circle')
                     .attr("cx", function(d){ return x(d.month); })
-                    .attr("cy", function(d){ return y(+d.price); })
-                    .attr("r", 2)
-                    .attr("fill", "grey");
+                    .attr("cy", function(d){ return y(+d.price * 10); })
+                    .attr("r", 2.5)
+                    .attr("fill", "red");
 
 
-                 svg
+                  svg
                     .append("path")
                     .attr("fill", "none")
                     .attr("stroke", mainColor)
                     .attr("stroke-width", 1.9)
-                    .attr("d", function(){
-                        
+                    .attr("d", function(){                        
                     return  d3.line()
                         .x(function(d) { return x(d.month); })
-                        .y(function(d) { return y(+d.price); })
+                        .y(function(d) { return y(+d.price * 10); })
                         (item.values.filter(function(k){ return k.measure === "Q1"})) 
-                    })
+                    }) 
 
                 // Add titles
                 svg
@@ -335,7 +372,7 @@ d3.csv("data/cpi_q1_median_november_2021_and_govstat_history.csv").then(function
                     .attr("y", -5)
                     .attr("x", 0)
                     .text(function(){ return(item.key)})
-                    .style("fill", '#333')
+                    .style("fill", darkBlue)
 
 
             })

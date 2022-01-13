@@ -88,9 +88,9 @@ main {
     background-color: white;
 }
 
-.btn-primary:hover {
+/* .btn-primary:hover {
     background-color: #eee;
-}
+} */
 
 .wrapper {
     margin-top: 10px;
@@ -160,6 +160,12 @@ main {
 .shop-item-clicked {
     background-color: $dark-blue;
     color: white;
+}
+
+#charts_legend {
+    display: none;
+    width: max-content;
+    margin: 0 auto 20px auto;
 }
 
 
@@ -325,11 +331,16 @@ main {
 }
 
 .btn-drawcharts {
-    display: block;
-    border: 1px dashed black;
-    color: black;
-    background-color: white;
+    display: block;       
+    background-color: rgb(50, 69, 99);
+    color: white;
     margin: 50px auto;
+    font-size: 1em;
+}
+
+g.tick line{
+    stroke-dasharray: 3 3;
+    opacity: 0.4;
 }
 
 /* #my_dataviz {

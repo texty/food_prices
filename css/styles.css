@@ -87,10 +87,9 @@ main h2 {
   background-color: white;
 }
 
-.btn-primary:hover {
-  background-color: #eee;
-}
-
+/* .btn-primary:hover {
+    background-color: #eee;
+} */
 .wrapper {
   margin-top: 10px;
   -webkit-transition: max-height 2s ease-out;
@@ -161,6 +160,14 @@ main h2 {
 .shop-item-clicked {
   background-color: #324563;
   color: white;
+}
+
+#charts_legend {
+  display: none;
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  margin: 0 auto 20px auto;
 }
 
 .shop-item-title {
@@ -332,10 +339,15 @@ main h2 {
 
 .btn-drawcharts {
   display: block;
-  border: 1px dashed black;
-  color: black;
-  background-color: white;
+  background-color: #324563;
+  color: white;
   margin: 50px auto;
+  font-size: 1em;
+}
+
+g.tick line {
+  stroke-dasharray: 3 3;
+  opacity: 0.4;
 }
 
 /* #my_dataviz {
