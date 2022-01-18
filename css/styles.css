@@ -38,10 +38,13 @@ h2 {
   padding: 20px 0;
 }
 
-.subtitle, p {
+h3, p {
   max-width: 600px;
-  margin: 50px auto;
-  font-weight: normal;
+  margin: 10px auto;
+}
+
+h3 {
+  margin: 50px auto 10px;
 }
 
 main {
@@ -348,6 +351,19 @@ main h2 {
 g.tick line {
   stroke-dasharray: 3 3;
   opacity: 0.4;
+}
+
+#static_chart {
+  width: 90%;
+  margin: auto;
+}
+
+#static_chart svg {
+  margin-right: 30px;
+}
+
+path.domain {
+  display: none;
 }
 
 /* #my_dataviz {

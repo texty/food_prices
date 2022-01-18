@@ -1,4 +1,3 @@
-
 const darkBlue = '#324563';
 
 d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(data){  
@@ -28,7 +27,8 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         .data(nested_data)
         .enter()
         .append("div")
-        .attr('class', "shop-item-category")
+        .attr('class', "shop-item-category");
+        
         
     itemCategory.append("input")    
         .attr("class", "toggle-inbox")
