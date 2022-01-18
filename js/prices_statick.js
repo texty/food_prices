@@ -8,10 +8,10 @@ d3.csv("data/govstat_market_compare_prices.csv").then(function(data){
     })
     
     var margin = {top: 25, right: 50, bottom: 25, left: 50};
-    var chartInnerWidth = 200;
-    var chartOuterWidth = 250;
-    var chartInnerHeight = 150;
-    var chartOuterHeight = 200;    
+    var chartInnerWidth = 150;
+    var chartOuterWidth = 200;
+    var chartInnerHeight = 100;
+    var chartOuterHeight = 150;    
 
 
     var colorScale = d3.scaleSequential()
@@ -85,6 +85,7 @@ d3.csv("data/govstat_market_compare_prices.csv").then(function(data){
         .attr("y", 0)
         .text(function(d){ return d.key })
         .style("fill", "#324563")
+        .style('font-size', '14px')
 
         //gradient scale
     multiple
@@ -158,7 +159,7 @@ d3.csv("data/govstat_market_compare_prices.csv").then(function(data){
                 d3.select(this)
                     .append("text")
                     .attr("font-size", "12px")                    
-                    .attr("y", function(d){ return chart_data[d.key].yScale(d.values[0].price)-5})
+                    .attr("y", function(d){ return chart_data[d.key].yScale(d.values[0].price)-3})
                     .attr("x", function(d){ return xScale(new Date('2021-08-01'))})
                     .style("fill", "red")
                     .text("держстат")
@@ -170,7 +171,7 @@ d3.csv("data/govstat_market_compare_prices.csv").then(function(data){
                     .attr("y", function(d){ return chart_data[d.key].yScale(d.values[0].price_min)+10})
                     .attr("x", function(d){ return xScale(new Date('2021-08-01'))})
                     .style("fill", "#7CB3C5")
-                    .text("супермаркет: мінімальна")
+                    .text("мінімальна")
 
                 d3.select(this)
                     .append("text")
@@ -178,7 +179,7 @@ d3.csv("data/govstat_market_compare_prices.csv").then(function(data){
                     .attr("y", function(d){ return chart_data[d.key].yScale(d.values[0].price_q1)-5})
                     .attr("x", function(d){ return xScale(new Date('2021-08-01'))})
                     .style("fill", darkBlue)
-                    .text("супермаркет:1 квартиль")
+                    .text("1 квартиль")
             }     
             
 

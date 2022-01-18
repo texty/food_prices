@@ -355,7 +355,15 @@ g.tick line {
 
 #static_chart {
   width: 90%;
+  max-width: 1200px;
   margin: auto;
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: (200px)[auto-fill];
+      grid-template-columns: repeat(auto-fill, 200px);
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
 }
 
 #static_chart svg {
