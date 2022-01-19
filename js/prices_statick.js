@@ -8,8 +8,8 @@ d3.csv("data/govstat_market_compare_prices.csv").then(function(data){
     })
     
     var margin = {top: 25, right: 50, bottom: 25, left: 50};
-    var chartInnerWidth = 150;
-    var chartOuterWidth = 200;
+    var chartInnerWidth = 130;
+    var chartOuterWidth = 180;
     var chartInnerHeight = 100;
     var chartOuterHeight = 150;    
 

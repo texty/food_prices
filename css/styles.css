@@ -16,17 +16,20 @@ html, body {
 }
 
 header {
-  min-height: 50vh;
+  min-height: 70vh;
   text-align: center;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  background-color: #FFF6EF;
+  background-image: url(/img/cover.png);
+  background-position: 50% 50%;
 }
 
 h1 {
   max-width: 80%;
   margin: auto;
+  font-size: calc(30px + 5vw);
+  color: white;
 }
 
 h2 {
@@ -38,13 +41,20 @@ h2 {
   padding: 20px 0;
 }
 
-h3, p {
-  max-width: 600px;
+.subtitle, h4, p {
+  width: 90%;
+  max-width: 700px;
   margin: 10px auto;
+  font-size: 18px;
 }
 
-h3 {
+.subtitle {
+  margin: 50px auto;
+}
+
+h4 {
   margin: 50px auto 10px;
+  font-size: 1.3em;
 }
 
 main {
@@ -54,6 +64,12 @@ main {
   display: grid;
   -ms-grid-columns: 1fr 3fr;
       grid-template-columns: 1fr 3fr;
+}
+
+@media (max-width: 800px) {
+  main {
+    display: block;
+  }
 }
 
 main h2 {
@@ -354,20 +370,16 @@ g.tick line {
 }
 
 #static_chart {
-  width: 90%;
   max-width: 1200px;
   margin: auto;
   display: -ms-grid;
   display: grid;
   -ms-grid-columns: (200px)[auto-fill];
       grid-template-columns: repeat(auto-fill, 200px);
-  -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-          justify-content: space-between;
 }
 
 #static_chart svg {
-  margin-right: 30px;
+  margin-right: 10px;
 }
 
 path.domain {
