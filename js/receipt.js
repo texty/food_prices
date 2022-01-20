@@ -97,23 +97,31 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
             button.addEventListener('click', addToCartClicked)
             }
     
-        document.getElementsByClassName('btn-purchase')[0].addEventListener('click', purchaseClicked)
+        document.getElementsByClassName('btn-purchase')[0].addEventListener('click', cleanBasket)
         
             
-        function purchaseClicked() {    
+        //очистити кошик
+        function cleanBasket() {    
             var cartItems = document.getElementsByClassName('cart-items')[0]
             while (cartItems.hasChildNodes()) {
                 cartItems.removeChild(cartItems.firstChild)
             }
             cart=[];
+
             updateCartTotal();
+
             let clickedItems = document.getElementsByClassName('shop-item-button');
             console.log(clickedItems);
             for(var i = 0; i < clickedItems.length; i++){
                 clickedItems[i].classList.remove('shop-item-clicked')
             }
+
+            document.getElementById('no-history-to-show').style.display="block";  
+            document.getElementById('my_dataviz').style.display="none";  
+            document.getElementsByClassName('infliation-total-median')[0].innerText = '0%'
         }
         
+        //видалити один елемент
         function removeCartItem(event) {
             var buttonClicked = event.target
             buttonClicked.parentElement.parentElement.remove();
@@ -128,6 +136,8 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
             updateCartTotal();
         }
         
+
+
         function quantityChanged(event) {
             var input = event.target
             if (isNaN(input.value) || input.value <= 0) {
@@ -136,16 +146,21 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
             updateCartTotal()
         }
         
+
         function addToCartClicked(event) {
             var button = event.target           
             button.classList.add('shop-item-clicked')          
             var shopItem = button.parentElement.parentElement
             var title = shopItem.getElementsByClassName('shop-item-title')[0].innerText
             var price = shopItem.getElementsByClassName('shop-item-price')[0].innerText
-            var infliation = shopItem.getElementsByClassName('shop-item-price')[0].getAttribute('data-infliation')           
-            addItemToCart(title, price, infliation)
-            updateCartTotal()
+            var infliation = shopItem.getElementsByClassName('shop-item-price')[0].getAttribute('data-infliation');                
+            addItemToCart(title, price, infliation);
+            updateCartTotal();
+
+            document.getElementById('no-history-to-show').style.display="none";   
+            document.getElementById('my_dataviz').style.display="block";   
         }
+        
         
         function addItemToCart(title, price, infliation) {
             cart = []
