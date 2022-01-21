@@ -262,7 +262,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
             chartsData.sort(function(a,b) { return cart.indexOf(a.name) - cart.indexOf(b.name)})
             
 
-            var margin = {top: 30, right: 0, bottom: 30, left: 60},
+            var margin = {top: 30, right: 0, bottom: 50, left: 60},
                 width = 300 - margin.left - margin.right,
                 height = 210 - margin.top - margin.bottom;
 
@@ -289,21 +289,21 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
                     .attr("transform",
                     "translate(" + margin.left + "," + margin.top + ")");
 
-                var x = d3.scaleTime()
+                var xYears = d3.scaleTime()
                    // .domain(d3.extent(item.values, function(d) { return d.month; }))
-                   .domain([new Date("2017-10-01"), new Date("2022-03-31")])
-                   .range([ 0, width ]);
+                   .domain([new Date("2017-10-01"), new Date("2021-12-01")])
+                   .range([ 0, width/3 ]);
     
+                var xMonths = d3.scaleTime()
+                   // .domain(d3.extent(item.values, function(d) { return d.month; }))
+                   .domain([new Date("2021-08-01"), new Date("2022-03-31")])
+                   .range([width/3, width]);
     
                 svg
                     .append("g")
                     .attr("transform", "translate(0," + height + ")")
-                    .call(d3.axisBottom(x)
-                    .tickValues([
-                        new Date('2017-10-01'), 
-                        new Date('2018-10-01'), 
-                        new Date('2019-10-01'), 
-                        new Date('2020-10-01'),                 
+                    .call(d3.axisBottom(xMonths)
+                    .tickValues([                                       
                         new Date('2021-08-01'),
                         new Date('2021-09-01'),
                         new Date('2021-10-01'),
@@ -312,26 +312,23 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
                         new Date('2022-01-01'),                       
                     ])
                         .tickSize(-height)
-                        .tickFormat(function(d){ return ""})
-                        
-                    );
+                        .tickFormat(d3.timeFormat("%b %y"))                        
+                    ).selectAll("text")
+                    .style("transform", "rotate(-90deg) translate(-10px, 0)");;
 
                     svg
                     .append("g")
                     .attr("transform", "translate(0," + height + ")")
-                    .call(d3.axisBottom(x)                    
+                    .call(d3.axisBottom(xYears)                    
                         .tickValues([
                             new Date('2017-10-01'), 
                             new Date('2018-10-01'), 
                             new Date('2019-10-01'), 
-                            new Date('2020-10-01'),
-                            new Date('2021-10-01'),
-                            new Date('2022-10-01'),
+                            new Date('2020-10-01')
                            
                         ]) 
-                     .tickFormat(d3.timeFormat("%m/%Y"))
-                        
-                    );
+                     .tickFormat(d3.timeFormat("%y"))                        
+                    )
 
                 var yMax = d3.max(item.values, function(d) { return parseFloat(d.price) *10; })
 
@@ -353,7 +350,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
                     .attr("d", function(){
                         
                     return d3.line()
-                        .x(function(d) { return x(d.month); })
+                        .x(function(d) { return xYears(d.month); })
                         .y(function(d) { return y(+d.price*10); })
                         (item.values.filter(function(k){ return k.measure === "govstat"})) 
                     });
@@ -362,7 +359,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
                     .data(item.values.filter(function(k){ return k.measure === "Q1"}))
                     .enter()
                     .append('circle')
-                    .attr("cx", function(d){ return x(d.month); })
+                    .attr("cx", function(d){ return xMonths(d.month); })
                     .attr("cy", function(d){ return y(+d.price * 10); })
                     .attr("r", 2.5)
                     .attr("fill", "red");
@@ -375,7 +372,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
                     .attr("stroke-width", 1.9)
                     .attr("d", function(){                        
                     return  d3.line()
-                        .x(function(d) { return x(d.month); })
+                        .x(function(d) { return xMonths(d.month); })
                         .y(function(d) { return y(+d.price * 10); })
                         (item.values.filter(function(k){ return k.measure === "Q1"})) 
                     }) 
@@ -388,6 +385,25 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
                     .attr("x", 0)
                     .text(function(){ return(item.key)})
                     .style("fill", darkBlue)
+
+
+                svg
+                    .append("text")
+                    .attr("text-anchor", "start")
+                    .attr("y", height+40)
+                    .attr("x", 10)
+                    .text("роки")
+                    .style("fill", darkBlue)
+                    .style('font-size', '14px')
+
+                svg
+                    .append("text")
+                    .attr("text-anchor", "start")
+                    .attr("y", height+40)
+                    .attr("x", xMonths(new Date('2021-10-01')))
+                    .text("місяці")
+                    .style("fill", darkBlue)
+                    .style('font-size', '14px')
 
 
             })
