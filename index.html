@@ -64,7 +64,7 @@
                 </div>
             </section>
 
-        <section class="container content-section" style="position:sticky; top:0; height:max-content;">
+        <div class="container content-section" style="position:sticky; top:0; height:max-content;">
            <div style='display: flex; align-items: center;'>
             <h3 class="section-header">Обрані продукти</h3> 
             <button class="btn btn-primary btn-purchase" type="button">очистити кошик</button>
@@ -72,11 +72,20 @@
           
             <div class="cart-row">
                 <span class="cart-item cart-header cart-column">назва</span>
-                <span class="cart-price_q1 cart-header cart-column">ціна за 100гр <br>грудень</span>
-                <span class="cart-price_median cart-header cart-column">ціна за 100гр<br>листопаад</span>
-                <span class="cart-item_infliation cart-header cart-column">інфляція за місяць</span>           
                 <span class="cart-quantity cart-header cart-column">вага (кг)</span>
+                <span class="cart-price_q1 cart-header cart-column">вартість <br>12/2021</span>                
+                <span class="cart-price-previous cart-header cart-column">вартість <br>
+                    <select id="cart-price_dropdown">                        
+                        <option value='2021-09-01'>09/2021</option>
+                        <option value='2021-10-01'>10/2021</option>
+                        <option value='2021-11-01'>11/2021</option>
+                        <option value='2021-12-01'>12/2021</option>
+                        <option value='2022-01-01'>01/2022</option>
+                    </select>
+                </span>
+                <span class="cart-item_infliation cart-header cart-column">інфляція</span>               
             </div>
+
             <div class="cart-items">
             </div>
             <div class="cart-total">
@@ -100,7 +109,7 @@
             </div>
           
 
-            <h3 class="section-header">Історія цін на обрані продукти (за 1 кг)</h3>
+            <h3 class="section-header">Історія цін на обрані продукти</h3>
             <text id="no-history-to-show" style="font-style:italic;">Не обрано жодного товару</text>
 
         

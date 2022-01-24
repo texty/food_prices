@@ -45,7 +45,8 @@ h2 {
   width: 90%;
   max-width: 700px;
   margin: 10px auto;
-  font-size: 18px;
+  font-size: 20px;
+  line-height: 1.6;
 }
 
 .subtitle {
@@ -217,6 +218,10 @@ main h2 {
   color: #333;
 }
 
+.shop-item-mode-weight {
+  display: none;
+}
+
 .shop-items {
   display: block;
   -ms-flex-wrap: wrap;
@@ -250,12 +255,17 @@ main h2 {
   margin-top: 10px;
 }
 
+.cart-header.cart-column {
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+
 .cart-row {
   font-size: 1em;
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: 4.5fr 2fr  2fr 2fr 3.5fr;
-      grid-template-columns: 4.5fr 2fr  2fr 2fr 3.5fr;
+  -ms-grid-columns: 4fr 3fr  2fr 2fr 3fr;
+      grid-template-columns: 4fr 3fr  2fr 2fr 3fr;
 }
 
 .cart-items .cart-column:not(.cart-quantity) {
@@ -266,8 +276,8 @@ main h2 {
   border-bottom: none;
 }
 
-.cart-item {
-  width: 45%;
+.cart-item_infliation {
+  width: 85%;
 }
 
 .cart-price {
@@ -304,7 +314,7 @@ main h2 {
 
 .cart-quantity-input {
   height: 30px;
-  width: 50px;
+  width: 70px;
   border-radius: 5px;
   border: 1px solid #64BAAA;
   background-color: #eee;
@@ -312,14 +322,14 @@ main h2 {
   padding: 0;
   text-align: center;
   font-size: 1.2em;
-  margin-right: 25px;
+  margin: 5px auto;
 }
 
 .cart-total, .infliation-total {
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: 4.5fr 2fr 2fr 2fr 3.5fr;
-      grid-template-columns: 4.5fr 2fr 2fr 2fr 3.5fr;
+  -ms-grid-columns: 8fr 2fr 2fr 3.5fr;
+      grid-template-columns: 8fr 2fr 2fr 3.5fr;
   text-align: left;
   margin-top: 10px;
   margin-right: 10px;
@@ -327,6 +337,12 @@ main h2 {
 
 .infliation-total {
   color: #FF0402;
+}
+
+select {
+  padding: 3px;
+  font-style: italic;
+  font-size: 14px;
 }
 
 .cart-total {

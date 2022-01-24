@@ -7,10 +7,9 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
     data.forEach(function(d){           
          d.month = d3.timeParse("%Y-%m-%d")(d.month);
          d.inflation = +d.inflation;
-         d.price = +d.price/10;   // щоб зменшити коефіцієнт ваги товарів, які купуються по-троху (часник, кава, вершкове масло тощо)      
+         d.price = +d.price;   // щоб зменшити коефіцієнт ваги товарів, які купуються по-троху (часник, кава, вершкове масло тощо)      
          d.count = 1;
     })
-
 
     var items_array = data.filter(function(d){           
         return d.measure === "Q1" && 
@@ -43,7 +42,6 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
             d3.select(this.parentNode)
                 .selectAll(".wrapper")                
                 .classed("hidden", !d3.select(this.parentNode).selectAll(".wrapper").classed("hidden"))
-
         })
 
         
@@ -69,7 +67,13 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         .append("span")
         .attr('class', "shop-item-price")
         .attr('data-infliation', function(d){ return d.inflation})
-        .text(function(d){ return d.price})
+        .text(function(d){ return d.price })
+
+    itemDetails
+        .append("span")
+        .attr('class', "shop-item-mode-weight")
+        .attr('mode-weight', function(d){ return d.mode})
+        .text(function(d){ return d.mode})
 
     itemDetails
         .append("button")
@@ -77,7 +81,9 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         .attr("type", "button")
         .text(function(d){ return d.short_name});
 
+    //створюємо пустий кошик    
     var cart = [];
+
 
     var removeCartItemButtons = document.getElementsByClassName('btn-danger')
         for (var i = 0; i < removeCartItemButtons.length; i++) {
@@ -97,318 +103,366 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
             button.addEventListener('click', addToCartClicked)
             }
     
-        document.getElementsByClassName('btn-purchase')[0].addEventListener('click', cleanBasket)
+   document.getElementsByClassName('btn-purchase')[0].addEventListener('click', cleanBasket)
         
             
-        //очистити кошик
-        function cleanBasket() {    
-            var cartItems = document.getElementsByClassName('cart-items')[0]
-            while (cartItems.hasChildNodes()) {
-                cartItems.removeChild(cartItems.firstChild)
-            }
-            cart=[];
-
-            updateCartTotal();
-
-            let clickedItems = document.getElementsByClassName('shop-item-button');
-            console.log(clickedItems);
-            for(var i = 0; i < clickedItems.length; i++){
-                clickedItems[i].classList.remove('shop-item-clicked')
-            }
-
-            document.getElementById('no-history-to-show').style.display="block";  
-            document.getElementById('my_dataviz').style.display="none";  
-            document.getElementsByClassName('infliation-total-median')[0].innerText = '0%'
+    //очистити кошик
+    function cleanBasket() {    
+        //clean basket
+        var cartItems = document.getElementsByClassName('cart-items')[0]
+        while (cartItems.hasChildNodes()) {
+            cartItems.removeChild(cartItems.firstChild)
+        } 
+        
+        //оновлюємо корзину
+        cart=[];
+        updateCartTotal();
+        
+        //remove click style from products buttons
+        let clickedItems = document.getElementsByClassName('shop-item-button');
+        for(var i = 0; i < clickedItems.length; i++){
+            clickedItems[i].classList.remove('shop-item-clicked')
         }
+
+        //повертаємо "не обрано жодного товару", ховаємо графіки
+        document.getElementById('no-history-to-show').style.display="block";  
+        document.getElementById('my_dataviz').style.display="none";  
+        document.getElementsByClassName('infliation-total-median')[0].innerText = '0%'
+    }
         
-        //видалити один елемент
-        function removeCartItem(event) {
-            var buttonClicked = event.target
-            buttonClicked.parentElement.parentElement.remove();
-            let valueToRemove = buttonClicked.parentElement.parentElement.getElementsByClassName("cart-item-title")[0].innerHTML;
-            let allProducts = document.getElementsByClassName('shop-item-button');
-            for(var i = 0; i < allProducts.length; i++){
-                if(allProducts[i].innerHTML === valueToRemove) {
-                    allProducts[i].classList.remove('shop-item-clicked')
-                }
+    //видалити один елемент
+    function removeCartItem(event) {
+        var buttonClicked = event.target
+        buttonClicked.parentElement.parentElement.remove();
+        let valueToRemove = buttonClicked.parentElement.parentElement.getElementsByClassName("cart-item-title")[0].innerHTML;
+        let allProducts = document.getElementsByClassName('shop-item-button');
+        
+        for(var i = 0; i < allProducts.length; i++){
+            if(allProducts[i].innerHTML === valueToRemove) {
+                allProducts[i].classList.remove('shop-item-clicked')
             }
-            cart=[];
-            updateCartTotal();
         }
+
+        cart=[];
+        updateCartTotal();
+    }       
+
+
+    function quantityChanged(event) {
+        var input = event.target
+        if (isNaN(input.value) || input.value <= 0) {
+            input.value = 1
+        }
+
+        updateCartTotal()
+    }
+
+
+    d3.select('#cart-price_dropdown').on("change", function(d){
+        updateCartTotal()
+    })
+
+    function changeMonth(){
+        var month_for_compare = d3.select('#cart-price_dropdown').node().value; 
+    }
         
 
+    function addToCartClicked(event) {
+        var button = event.target;           
+        button.classList.add('shop-item-clicked');
 
-        function quantityChanged(event) {
-            var input = event.target
-            if (isNaN(input.value) || input.value <= 0) {
-                input.value = 1
+        var shopItem = button.parentElement.parentElement;
+
+        var title = shopItem.getElementsByClassName('shop-item-title')[0].innerText;            
+        var mode = shopItem.getElementsByClassName('shop-item-mode-weight')[0].getAttribute('mode-weight');
+        var price_kg = shopItem.getElementsByClassName('shop-item-price')[0].innerText;
+        var price = price_kg * mode;
+
+        addItemToCart(title, price, price_kg, mode);
+        updateCartTotal();
+
+        document.getElementById('no-history-to-show').style.display="none";   
+        document.getElementById('my_dataviz').style.display="block";   
+    }
+        
+    function addItemToCart(title, price, price_kg, mode) {
+        cart = []
+        price = parseFloat(price);
+        price_kg = parseFloat(price_kg);
+        
+        var cartRow = document.createElement('div')
+        cartRow.classList.add('cart-row')
+
+
+        var cartItems = document.getElementsByClassName('cart-items')[0];        
+        var cartItemNames = cartItems.getElementsByClassName('cart-item-title');
+
+        var cartItemCounts = cartItems.getElementsByClassName('cart-quantity-input')
+        for (var i = 0; i < cartItemNames.length; i++) {
+            if (cartItemNames[i].innerText == title) {
+                console.log('This item is already added to the cart')  
+                cartItemCounts[i].value = parseInt(cartItemCounts[i].value, 10) + 1                   
+                return
             }
-            updateCartTotal()
         }
-        
 
-        function addToCartClicked(event) {
-            var button = event.target           
-            button.classList.add('shop-item-clicked')          
-            var shopItem = button.parentElement.parentElement
-            var title = shopItem.getElementsByClassName('shop-item-title')[0].innerText
-            var price = shopItem.getElementsByClassName('shop-item-price')[0].innerText
-            var infliation = shopItem.getElementsByClassName('shop-item-price')[0].getAttribute('data-infliation');                
-            addItemToCart(title, price, infliation);
-            updateCartTotal();
-
-            document.getElementById('no-history-to-show').style.display="none";   
-            document.getElementById('my_dataviz').style.display="block";   
-        }
-        
-        
-        function addItemToCart(title, price, infliation) {
-            cart = []
-            price = parseFloat(price);
-            infliation = parseFloat(infliation);
-            var cartRow = document.createElement('div')
-            cartRow.classList.add('cart-row')
-            var cartItems = document.getElementsByClassName('cart-items')[0]
-            
-            var cartItemNames = cartItems.getElementsByClassName('cart-item-title')
-            var cartItemCounts = cartItems.getElementsByClassName('cart-quantity-input')
-            for (var i = 0; i < cartItemNames.length; i++) {
-                if (cartItemNames[i].innerText == title) {
-                    console.log('This item is already added to the cart')  
-                    cartItemCounts[i].value = parseInt(cartItemCounts[i].value, 10) + 1                   
-                    return
-                }
-            }
-
-
-            var cartRowContents = `
-                <div class="cart-item cart-column">
-                    <span class="cart-item-title">${title}</span>
-                </div>               
-                <span data-infliation='${infliation}' class="cart-price_q1 cart-column">${price.toFixed(2)}</span>
-                <span data-infliation='${infliation}' class="cart-price_median cart-column">${ ((price / (infliation)) * 100).toFixed(2) }</span>
-                <span class="cart-item_infliation cart-column">${infliation + '%'}</span>
-                <div class="cart-quantity cart-column">
-                    <input class="cart-quantity-input" type="number" min=”0″ value="0.1" step="0.1" lang="en">
-                    <button class="btn btn-danger" type="button">&#x2715</button>
-                </div>`
-            cartRow.innerHTML = cartRowContents
-            cartItems.append(cartRow)
-            cartRow.getElementsByClassName('btn-danger')[0].addEventListener('click', removeCartItem)
-            cartRow.getElementsByClassName('cart-quantity-input')[0].addEventListener('change', quantityChanged)
-        }
-        
-        function updateCartTotal() {                     
-            var formula = []                    
-            var count = 0;
-            var cartItemContainer = document.getElementsByClassName('cart-items')[0]
-            var cartRows = cartItemContainer.getElementsByClassName('cart-row')
-            var total_q1 = 0
-            var total_median = 0
-            for (var i = 0; i < cartRows.length; i++) {
-                var cartRow = cartRows[i];
-
-                //масив із назв продуктів, за якими фільтруємо дані для графіків
-                var itemTitle = cartRow.getElementsByClassName('cart-item-title')[0].innerText;
-                cart.push(itemTitle);
-
-                //ціна за останній місяць для кошику
-                var InflQ1 = cartRow.getElementsByClassName('cart-price_q1')[0].getAttribute('data-infliation')
-                var price_q1 = parseFloat(cartRow.getElementsByClassName('cart-price_q1')[0].innerText)    
+        var cartRowContents = `
+            <div class="cart-item cart-column">
+                <span class="cart-item-title">${title}</span>
+            </div>     
+            <input class="cart-quantity-input" type="number" min=”0″ value="${mode}" step="0.1" lang="en">   
                 
-                var price_median = parseFloat(cartRow.getElementsByClassName('cart-price_median')[0].innerText)                
-               
-                var quantity = cartRow.getElementsByClassName('cart-quantity-input')[0].value;
-
-                //перераховуємо "усього", базова одиниця в нас 0.1 (тобто 100 гр) через те, що є часник, кава та інші продукти, де кг- це забагато.
-                total_q1 = total_q1 + (price_q1 * (quantity/0.1))
-                total_median = total_median + (price_median * (quantity/0.1))
-                
-                //масив із середніми значеннями ІСЦ на основі вагових коеффіцієнтів
-                formula.push(parseFloat(InflQ1) * parseFloat(quantity))                
-                count =  count + parseFloat(quantity);
-                     
-            }
-            total_q1 = Math.round(total_q1 * 100) / 100
-            total_median = Math.round(total_median * 100) / 100;
-
-            //розмір персональної інфляції на основі вагових коефіцієнтів
-            var personal_q1_inliation = formula.reduce( function(a, b){ return  a + b}, 0) / count; 
+            <span data-price-kg='${price_kg}' class="cart-price_q1 cart-column">${price.toFixed(2)}</span>                
+            <span class="cart-price-previous cart-column"></span>
+            <div class="cart-quantity cart-column">
+                <span class="cart-item-infliation cart-column"></span>
+                <button class="btn btn-danger" type="button">&#x2715</button>
+            </div>   `
             
-            document.getElementsByClassName('cart-total-q1')[0].innerText = total_q1
-            document.getElementsByClassName('cart-total-median')[0].innerText =  total_median
-            document.getElementsByClassName('infliation-total-q1')[0].innerText = personal_q1_inliation > 0 ? (personal_q1_inliation).toFixed(1) + "%" : '0%';
-            document.getElementsByClassName('infliation-total-median')[0].innerText = (total_q1/(total_median/100)).toFixed(1) + "%";
+        cartRow.innerHTML = cartRowContents
+        cartItems.append(cartRow);
 
-            drawCharts();
+        cartRow.getElementsByClassName('btn-danger')[0].addEventListener('click', removeCartItem)
+        cartRow.getElementsByClassName('cart-quantity-input')[0].addEventListener('change', quantityChanged)
+    }
+        
+    function updateCartTotal() {   
+        var month_for_compare = d3.select('#cart-price_dropdown').node().value; 
+                  
+        var formula = []                    
+        var count = 0;
+        var cartItemContainer = document.getElementsByClassName('cart-items')[0]
+        var cartRows = cartItemContainer.getElementsByClassName('cart-row')
+        var total_current = 0
+        var total_previous = 0
+        for (var i = 0; i < cartRows.length; i++) {
+            var cartRow = cartRows[i];
+
+            //масив із назв продуктів, за якими фільтруємо дані для графіків
+            var itemTitle = cartRow.getElementsByClassName('cart-item-title')[0].innerText;
+            cart.push(itemTitle);
             
+            //дані для обраного для порівняння місяці
+            var data_for_compare = data
+                .filter(function(d){ return d.month.getTime() === d3.timeParse("%Y-%m-%d")(month_for_compare).getTime() })
+                .filter(function(d){ return d.short_name === itemTitle & d.measure === "Q1"});        
+
+            //кількість біля товару
+            let quantity = cartRow.getElementsByClassName('cart-quantity-input')[0].value;
+            
+            //ціна за кг за останній місяць для кошику
+            let last_price_kg = parseFloat(cartRow.getElementsByClassName('cart-price_q1')[0].getAttribute('data-price-kg'));  
+            
+            //ціна за попередній обраний місяць
+            let previous_price_kg = parseFloat(data_for_compare[0].price)
+            
+            //вартість з урахуванням ваги
+            let last_price = last_price_kg * quantity; 
+            let previous_price = previous_price_kg * quantity;
+                 
+            //інфляція
+            let infliation = (last_price_kg / (previous_price_kg/100)).toFixed(1)           
+            
+            //оновлюємо вартість за останній місяць з врахуванням зміненої ваги
+            cartRow.getElementsByClassName('cart-price_q1')[0].innerHTML = last_price.toFixed(1);            
+            cartRow.getElementsByClassName('cart-price-previous')[0].innerHTML = previous_price.toFixed(1);
+            cartRow.getElementsByClassName('cart-item-infliation')[0].innerHTML = infliation < 100 ? infliation+"%" + '<span style="color:green; font-size: 22px;">&#8595;</span>':  
+                                    infliation > 100 ? infliation+"%" + '<span style="color:red; font-size: 22px">&#8593;</span>':
+                                    infliation+"%" ;          
+                   
+            
+            //перераховуємо "усього", базова одиниця в нас 0.1 (тобто 100 гр) через те, що є часник, кава та інші продукти, де кг- це забагато.
+            total_current = total_current + last_price;
+            total_previous = total_previous + previous_price;
+            
+            //масив із середніми значеннями ІСЦ на основі вагових коеффіцієнтів
+            formula.push(parseFloat(infliation) * parseFloat(quantity))                
+            count =  count + parseFloat(quantity);                     
         }
 
-        var sum = function(df, prop){
-            return df.reduce( function(a, b){
-                return  parseInt(a) + parseInt(b[prop]);
-            }, 0);
-        };
 
-        function drawCharts(){
-            d3.select("#my_dataviz").selectAll("svg").remove();       
-            d3.select('#charts_legend').style("display", "block")
+        total_current = Math.round(total_current * 100) / 100
+        total_previous = Math.round(total_previous * 100) / 100;
 
-            var chartsData = data.filter(function(k){
-                return cart.includes(k.short_name) & (k.measure === "Q1" | k.measure === "govstat");
-            }) 
+        //розмір персональної інфляції на основі вагових коефіцієнтів
+        var personal_q1_inliation = formula.reduce( function(a, b){ return  a + b}, 0) / count; 
+        
+        document.getElementsByClassName('cart-total-q1')[0].innerText = total_current
+        document.getElementsByClassName('cart-total-median')[0].innerText =  total_previous
+        document.getElementsByClassName('infliation-total-q1')[0].innerText = personal_q1_inliation > 0 ? (personal_q1_inliation).toFixed(1) + "%" : '0%';
+        document.getElementsByClassName('infliation-total-median')[0].innerText = (total_current/(total_previous/100)).toFixed(1) + "%";
 
-            //сортуємо дані в тому порядку, як вони йдуть в коризині
-            chartsData.sort(function(a,b) { return cart.indexOf(a.name) - cart.indexOf(b.name)})
-            
+        drawCharts();
+        
+    }
 
-            var margin = {top: 30, right: 0, bottom: 50, left: 60},
-                width = 300 - margin.left - margin.right,
-                height = 210 - margin.top - margin.bottom;
+    var sum = function(df, prop){
+        return df.reduce( function(a, b){
+            return  parseInt(a) + parseInt(b[prop]);
+        }, 0);
+    };
 
-           
-             // group the data: I want to draw one line per group
-            var sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
-                .key(function(d) { return d.name;})
-                .entries(chartsData);
+    function drawCharts(){
+        d3.select("#my_dataviz").selectAll("svg").remove();       
+        d3.select('#charts_legend').style("display", "block")
 
-            // What is the list of groups?
-            allKeys = sumstat.map(function(d){return d.key})
+        var chartsData = data.filter(function(k){
+            return cart.includes(k.short_name) & (k.measure === "Q1" | k.measure === "govstat");
+        }) 
+        console.log(cart);
+        console.log(chartsData);
 
-            // Add an svg element for each group. The will be one beside each other and will go on the next row when no more room available
-            sumstat.forEach(function(item){   
-                item.values = item.values.sort(function(a,b){
-                    return a.month - b.month
-                })                  
+        //сортуємо дані в тому порядку, як вони йдуть в коризині
+        chartsData.sort(function(a,b) { return cart.indexOf(a.name) - cart.indexOf(b.name)})
+        
 
-                var svg = d3.select("#my_dataviz")
-                    .append("svg")
-                    .attr("width", width + margin.left + margin.right)
-                    .attr("height", height + margin.top + margin.bottom)               
-                    .append("g")               
-                    .attr("transform",
-                    "translate(" + margin.left + "," + margin.top + ")");
+        var margin = {top: 30, right: 0, bottom: 50, left: 30},
+            width = 280 - margin.left - margin.right,
+            height = 210 - margin.top - margin.bottom;
 
-                var xYears = d3.scaleTime()
-                   // .domain(d3.extent(item.values, function(d) { return d.month; }))
-                   .domain([new Date("2017-10-01"), new Date("2021-12-01")])
-                   .range([ 0, width/3 ]);
-    
-                var xMonths = d3.scaleTime()
-                   // .domain(d3.extent(item.values, function(d) { return d.month; }))
-                   .domain([new Date("2021-08-01"), new Date("2022-03-31")])
-                   .range([width/3, width]);
-    
-                svg
-                    .append("g")
-                    .attr("transform", "translate(0," + height + ")")
-                    .call(d3.axisBottom(xMonths)
-                    .tickValues([                                       
-                        new Date('2021-08-01'),
-                        new Date('2021-09-01'),
-                        new Date('2021-10-01'),
-                        new Date('2021-11-01'),
-                        new Date('2021-12-01'),
-                        new Date('2022-01-01'),                       
-                    ])
-                        .tickSize(-height)
-                        .tickFormat(d3.timeFormat("%b %y"))                        
-                    ).selectAll("text")
-                    .style("transform", "rotate(-90deg) translate(-10px, 0)");;
+        
+            // group the data: I want to draw one line per group
+        var sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
+            .key(function(d) { return d.name;})
+            .entries(chartsData);
 
-                    svg
-                    .append("g")
-                    .attr("transform", "translate(0," + height + ")")
-                    .call(d3.axisBottom(xYears)                    
-                        .tickValues([
-                            new Date('2017-10-01'), 
-                            new Date('2018-10-01'), 
-                            new Date('2019-10-01'), 
-                            new Date('2020-10-01')
-                           
-                        ]) 
-                     .tickFormat(d3.timeFormat("%y"))                        
-                    )
+        // What is the list of groups?
+        allKeys = sumstat.map(function(d){return d.key})
 
-                var yMax = d3.max(item.values, function(d) { return parseFloat(d.price) *10; })
+        // Add an svg element for each group. The will be one beside each other and will go on the next row when no more room available
+        sumstat.forEach(function(item){   
+            item.values = item.values.sort(function(a,b){
+                return a.month - b.month
+            })                  
 
-                var y = d3.scaleLinear()
-                    //.domain(d3.extent(item.values, function(d) { return parseFloat(d.price); }))
-                    .domain([0, yMax * 2])
-                    .range([ height, 0 ]); 
+            var svg = d3.select("#my_dataviz")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)               
+                .append("g")               
+                .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+            var xYears = d3.scaleTime()
+                // .domain(d3.extent(item.values, function(d) { return d.month; }))
+                .domain([new Date("2017-10-01"), new Date("2021-12-01")])
+                .range([ 0, width/3 ]);
+
+            var xMonths = d3.scaleTime()
+                // .domain(d3.extent(item.values, function(d) { return d.month; }))
+                .domain([new Date("2021-08-01"), new Date("2022-03-31")])
+                .range([width/3, width]);
+
+            svg
+                .append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(xMonths)
+                .tickValues([                                       
+                    new Date('2021-08-01'),
+                    new Date('2021-09-01'),
+                    new Date('2021-10-01'),
+                    new Date('2021-11-01'),
+                    new Date('2021-12-01'),
+                    new Date('2022-01-01'),                       
+                ])
+                    .tickSize(-height)
+                    .tickFormat(d3.timeFormat("%b %y"))                        
+                ).selectAll("text")
+                .style("transform", "rotate(-90deg) translate(-10px, 0)");;
 
                 svg
-                    .append("g")
-                    //.attr("transform", "translate(0," + height + ")")
-                    .call(d3.axisLeft(y).ticks(5));              
-
-                svg
-                    .append("path")
-                    .attr("fill", "none")
-                    .attr("stroke", "lightgrey")
-                    .attr("stroke-width", 1)
-                    .attr("d", function(){
+                .append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(xYears)                    
+                    .tickValues([
+                        new Date('2017-10-01'), 
+                        new Date('2018-10-01'), 
+                        new Date('2019-10-01'), 
+                        new Date('2020-10-01')
                         
-                    return d3.line()
-                        .x(function(d) { return xYears(d.month); })
-                        .y(function(d) { return y(+d.price*10); })
-                        (item.values.filter(function(k){ return k.measure === "govstat"})) 
-                    });
+                    ]) 
+                    .tickFormat(d3.timeFormat("%y"))                        
+                )
 
-                svg.selectAll('circle')
-                    .data(item.values.filter(function(k){ return k.measure === "Q1"}))
-                    .enter()
-                    .append('circle')
-                    .attr("cx", function(d){ return xMonths(d.month); })
-                    .attr("cy", function(d){ return y(+d.price * 10); })
-                    .attr("r", 2.5)
-                    .attr("fill", "red");
+            var yMax = d3.max(item.values, function(d) { return parseFloat(d.price*d.mode); })
 
+            var y = d3.scaleLinear()
+                //.domain(d3.extent(item.values, function(d) { return parseFloat(d.price); }))
+                .domain([0, yMax * 2])
+                .range([ height, 0 ]); 
 
-                  svg
-                    .append("path")
-                    .attr("fill", "none")
-                    .attr("stroke", mainColor)
-                    .attr("stroke-width", 1.9)
-                    .attr("d", function(){                        
-                    return  d3.line()
-                        .x(function(d) { return xMonths(d.month); })
-                        .y(function(d) { return y(+d.price * 10); })
-                        (item.values.filter(function(k){ return k.measure === "Q1"})) 
-                    }) 
+            svg
+                .append("g")
+                //.attr("transform", "translate(0," + height + ")")
+                .call(d3.axisLeft(y).ticks(5));              
 
-                // Add titles
-                svg
-                    .append("text")
-                    .attr("text-anchor", "start")
-                    .attr("y", -5)
-                    .attr("x", 0)
-                    .text(function(){ return(item.key)})
-                    .style("fill", darkBlue)
+            svg
+                .append("path")
+                .attr("fill", "none")
+                .attr("stroke", "lightgrey")
+                .attr("stroke-width", 1)
+                .attr("d", function(){
+                    
+                return d3.line()
+                    .x(function(d) { return xYears(d.month); })
+                    .y(function(d) { return y(+d.price); })
+                    (item.values.filter(function(k){ return k.measure === "govstat"})) 
+                });
 
+            svg.selectAll('circle')
+                .data(item.values.filter(function(k){ return k.measure === "Q1"}))
+                .enter()
+                .append('circle')
+                .attr("cx", function(d){ return xMonths(d.month); })
+                .attr("cy", function(d){ return y(+d.price * +d.mode); })
+                .attr("r", 2.5)
+                .attr("fill", "red");
 
-                svg
-                    .append("text")
-                    .attr("text-anchor", "start")
-                    .attr("y", height+40)
-                    .attr("x", 10)
-                    .text("роки")
-                    .style("fill", darkBlue)
-                    .style('font-size', '14px')
 
                 svg
-                    .append("text")
-                    .attr("text-anchor", "start")
-                    .attr("y", height+40)
-                    .attr("x", xMonths(new Date('2021-10-01')))
-                    .text("місяці")
-                    .style("fill", darkBlue)
-                    .style('font-size', '14px')
+                .append("path")
+                .attr("fill", "none")
+                .attr("stroke", mainColor)
+                .attr("stroke-width", 1.9)
+                .attr("d", function(){                        
+                return  d3.line()
+                    .x(function(d) { return xMonths(d.month); })
+                    .y(function(d) { return y(+d.price * +d.mode); })
+                    (item.values.filter(function(k){ return k.measure === "Q1"})) 
+                }) 
+
+            // Add titles
+            svg
+                .append("text")
+                .attr("text-anchor", "start")
+                .attr("y", -5)
+                .attr("x", 0)
+                .text(function(){ return(item.key)})
+                .style("fill", darkBlue)
 
 
-            })
+            svg
+                .append("text")
+                .attr("text-anchor", "start")
+                .attr("y", height+40)
+                .attr("x", 10)
+                .text("роки")
+                .style("fill", darkBlue)
+                .style('font-size', '14px')
 
-        }
+            svg
+                .append("text")
+                .attr("text-anchor", "start")
+                .attr("y", height+40)
+                .attr("x", xMonths(new Date('2021-10-01')))
+                .text("місяці")
+                .style("fill", darkBlue)
+                .style('font-size', '14px')
+
+
+        })
+
+    }
 
         d3.select('.btn-drawcharts').on('click', drawCharts);
 
