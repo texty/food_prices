@@ -83,6 +83,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
 
     //створюємо пустий кошик    
     var cart = [];
+    var cartMode = {};
 
 
     var removeCartItemButtons = document.getElementsByClassName('btn-danger')
@@ -227,28 +228,33 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
     }
         
     function updateCartTotal() {   
-        var month_for_compare = d3.select('#cart-price_dropdown').node().value; 
-                  
+        var month_for_compare = d3.select('#cart-price_dropdown').node().value;                   
         var formula = []                    
         var count = 0;
         var cartItemContainer = document.getElementsByClassName('cart-items')[0]
         var cartRows = cartItemContainer.getElementsByClassName('cart-row')
         var total_current = 0
-        var total_previous = 0
+        var total_previous = 0;
+        cartMode = {};
         for (var i = 0; i < cartRows.length; i++) {
             var cartRow = cartRows[i];
 
+            //кількість біля товару
+            let quantity = cartRow.getElementsByClassName('cart-quantity-input')[0].value;
+
             //масив із назв продуктів, за якими фільтруємо дані для графіків
             var itemTitle = cartRow.getElementsByClassName('cart-item-title')[0].innerText;
-            cart.push(itemTitle);
+            cart.push(itemTitle);       
+
+            
+            cartMode[itemTitle] = parseFloat(quantity);            
             
             //дані для обраного для порівняння місяці
             var data_for_compare = data
                 .filter(function(d){ return d.month.getTime() === d3.timeParse("%Y-%m-%d")(month_for_compare).getTime() })
                 .filter(function(d){ return d.short_name === itemTitle & d.measure === "Q1"});        
 
-            //кількість біля товару
-            let quantity = cartRow.getElementsByClassName('cart-quantity-input')[0].value;
+            
             
             //ціна за кг за останній місяць для кошику
             let last_price_kg = parseFloat(cartRow.getElementsByClassName('cart-price_q1')[0].getAttribute('data-price-kg'));  
@@ -309,9 +315,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         var chartsData = data.filter(function(k){
             return cart.includes(k.short_name) & (k.measure === "Q1" | k.measure === "govstat");
         }) 
-        console.log(cart);
-        console.log(chartsData);
-
+        
         //сортуємо дані в тому порядку, як вони йдуть в коризині
         chartsData.sort(function(a,b) { return cart.indexOf(a.name) - cart.indexOf(b.name)})
         
@@ -384,16 +388,18 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
                     .tickFormat(d3.timeFormat("%y"))                        
                 )
 
-            var yMax = d3.max(item.values, function(d) { return parseFloat(d.price*d.mode); })
+
+              
+            var yMax = d3.max(item.values, function(d) { 
+                return parseFloat(d.price * cartMode[d.short_name]); 
+            })
 
             var y = d3.scaleLinear()
-                //.domain(d3.extent(item.values, function(d) { return parseFloat(d.price); }))
                 .domain([0, yMax * 2])
                 .range([ height, 0 ]); 
 
             svg
                 .append("g")
-                //.attr("transform", "translate(0," + height + ")")
                 .call(d3.axisLeft(y).ticks(5));              
 
             svg
@@ -405,7 +411,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
                     
                 return d3.line()
                     .x(function(d) { return xYears(d.month); })
-                    .y(function(d) { return y(+d.price); })
+                    .y(function(d) { return y(+d.price * cartMode[d.short_name]); })
                     (item.values.filter(function(k){ return k.measure === "govstat"})) 
                 });
 
@@ -414,7 +420,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
                 .enter()
                 .append('circle')
                 .attr("cx", function(d){ return xMonths(d.month); })
-                .attr("cy", function(d){ return y(+d.price * +d.mode); })
+                .attr("cy", function(d){ return y(+d.price * cartMode[d.short_name]); })
                 .attr("r", 2.5)
                 .attr("fill", "red");
 
@@ -427,7 +433,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
                 .attr("d", function(){                        
                 return  d3.line()
                     .x(function(d) { return xMonths(d.month); })
-                    .y(function(d) { return y(+d.price * +d.mode); })
+                    .y(function(d) { return y(+d.price * cartMode[d.short_name]); })
                     (item.values.filter(function(k){ return k.measure === "Q1"})) 
                 }) 
 
