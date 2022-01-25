@@ -61,7 +61,7 @@ h4 {
 }
 
 main {
-    max-width: 1600px;
+    max-width: 1400px;
     margin:auto;
     display: grid;
     grid-template-columns: 1fr 3fr;
@@ -230,6 +230,10 @@ main {
     color: $dark-blue;
 }
 
+.cart-quantity.cart-header {
+    margin: 0 auto;
+}
+
 .cart-items {
     padding-bottom: 20px;
     border-bottom: 2px solid $dark-blue;
@@ -241,7 +245,7 @@ main {
     display: flex;
     
     align-items: center;
-    margin-right: 1.5em;
+    //margin-right: 1.5em;
     margin-top: 10px;
 }
 
@@ -250,9 +254,14 @@ main {
 }
 
 .cart-row {
+    //border-bottom: 1px dashed grey;
     font-size: 1em;
     display: grid;
-    grid-template-columns: 4fr 3fr  2fr 2fr 3fr;    
+    grid-template-columns: 4fr 2fr 2fr 2fr 3fr;    
+    @media(max-width:600px) and (orientation: portrait) {
+        font-size: 0.7em;
+        grid-template-columns: 3fr 3fr 3fr 3fr 3fr;
+    }
 }
 
 .cart-items {
@@ -279,7 +288,7 @@ main {
 }
 
 .cart-quantity {
-    width: 35%;
+    //width: 35%;
 }
 
 .cart-item-title {    
@@ -315,6 +324,9 @@ main {
     text-align: center;
     font-size: 1.2em;
     margin: 5px auto;
+    @media(max-width: 600px) and (orientation: portrait) {
+        width: 50px;
+    }
 }
 
 .cart-total, .infliation-total {
@@ -323,6 +335,9 @@ main {
     text-align: left;
     margin-top: 10px;
     margin-right: 10px;
+    @media(max-width: 600px) and (orientation: portrait){
+        grid-template-columns: 6fr 3fr 3fr 3.5fr
+    }
 }
 
 .infliation-total {
@@ -330,9 +345,9 @@ main {
 }
 
 select {
-    padding:3px;
+    padding:1px;
     font-style: italic;
-    font-size: 14px;
+    font-size: 1em;
 }
 
 .cart-total {

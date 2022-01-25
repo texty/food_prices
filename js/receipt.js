@@ -215,8 +215,8 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
                 
             <span data-price-kg='${price_kg}' class="cart-price_q1 cart-column">${price.toFixed(2)}</span>                
             <span class="cart-price-previous cart-column"></span>
-            <div class="cart-quantity cart-column">
-                <span class="cart-item-infliation cart-column"></span>
+            <div class="cart-column">
+                <span class="cart-item-infliation"></span>
                 <button class="btn btn-danger" type="button">&#x2715</button>
             </div>   `
             
@@ -272,8 +272,8 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
             //оновлюємо вартість за останній місяць з врахуванням зміненої ваги
             cartRow.getElementsByClassName('cart-price_q1')[0].innerHTML = last_price.toFixed(1);            
             cartRow.getElementsByClassName('cart-price-previous')[0].innerHTML = previous_price.toFixed(1);
-            cartRow.getElementsByClassName('cart-item-infliation')[0].innerHTML = infliation < 100 ? infliation+"%" + '<span style="color:green; font-size: 22px;">&#8595;</span>':  
-                                    infliation > 100 ? infliation+"%" + '<span style="color:red; font-size: 22px">&#8593;</span>':
+            cartRow.getElementsByClassName('cart-item-infliation')[0].innerHTML = infliation < 100 ? infliation+"%" + '<span style="color:green;">&#129067;</span>':  
+                                    infliation > 100 ? infliation+"%" + '<span style="color:red;">&#129065;</span>':
                                     infliation+"%" ;          
                    
             
@@ -298,8 +298,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         document.getElementsByClassName('infliation-total-q1')[0].innerText = personal_q1_inliation > 0 ? (personal_q1_inliation).toFixed(1) + "%" : '0%';
         document.getElementsByClassName('infliation-total-median')[0].innerText = (total_current/(total_previous/100)).toFixed(1) + "%";
 
-        drawCharts();
-        
+        drawCharts();        
     }
 
     var sum = function(df, prop){
