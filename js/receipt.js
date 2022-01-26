@@ -7,13 +7,13 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
     data.forEach(function(d){           
          d.month = d3.timeParse("%Y-%m-%d")(d.month);
          d.inflation = +d.inflation;
-         d.price = +d.price;   // щоб зменшити коефіцієнт ваги товарів, які купуються по-троху (часник, кава, вершкове масло тощо)      
+         d.price = +d.price;   
          d.count = 1;
     })
 
     var items_array = data.filter(function(d){           
         return d.measure === "Q1" && 
-            d.month.getTime() === new Date("2021-12-01T00:00:00").getTime() 
+            d.month.getTime() === new Date("2022-01-01T00:00:00").getTime() 
     })
 
     var nested_data = d3.nest()
@@ -21,13 +21,12 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         .entries(items_array);
 
    
-    var itemCategory = d3.select(".shop-items")
+    var itemCategory = d3.select(".categories")
         .selectAll("div.shop-item-category")
         .data(nested_data)
         .enter()
         .append("div")
         .attr('class', "shop-item-category");
-        
         
     itemCategory.append("input")    
         .attr("class", "toggle-inbox")
@@ -40,14 +39,13 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         .text(function(d){  return d.key })
         .on("click", function(){
             d3.select(this.parentNode)
-                .selectAll(".wrapper")                
-                .classed("hidden", !d3.select(this.parentNode).selectAll(".wrapper").classed("hidden"))
+                .selectAll(".shop-item-wrapper")                
+                .classed("hidden", !d3.select(this.parentNode).selectAll(".shop-item-wrapper").classed("hidden"))
         })
-
         
-   var itemDetails = itemCategory
+    var itemDetails = itemCategory
         .append("div")
-        .attr("class", "wrapper")
+        .attr("class", "shop-item-wrapper")
         .classed("hidden", true)
         .selectAll("div.shop-item")
         .data(function(d){ return d.values}) 
@@ -104,11 +102,12 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
             button.addEventListener('click', addToCartClicked)
             }
     
-   document.getElementsByClassName('btn-purchase')[0].addEventListener('click', cleanBasket)
+   document.getElementsByClassName('btn-clear-all')[0].addEventListener('click', cleanBasket)
         
             
     //очистити кошик
     function cleanBasket() {    
+       
         //clean basket
         var cartItems = document.getElementsByClassName('cart-items')[0]
         while (cartItems.hasChildNodes()) {
@@ -128,7 +127,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         //повертаємо "не обрано жодного товару", ховаємо графіки
         document.getElementById('no-history-to-show').style.display="block";  
         document.getElementById('my_dataviz').style.display="none";  
-        document.getElementsByClassName('infliation-total-median')[0].innerText = '0%'
+        document.getElementsByClassName('infliation-total-real')[0].innerText = '0%'
     }
         
     //видалити один елемент
@@ -208,13 +207,13 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         }
 
         var cartRowContents = `
-            <div class="cart-item cart-column">
+            <div class="cart-column cart-item">
                 <span class="cart-item-title">${title}</span>
             </div>     
             <input class="cart-quantity-input" type="number" min=”0″ value="${mode}" step="0.1" lang="en">   
                 
-            <span data-price-kg='${price_kg}' class="cart-price_q1 cart-column">${price.toFixed(2)}</span>                
-            <span class="cart-price-previous cart-column"></span>
+            <span data-price-kg='${price_kg}' class="cart-column cart-price-last">${price.toFixed(2)}</span>                
+            <span class="cart-column cart-price-previous"></span>
             <div class="cart-column">
                 <span class="cart-item-infliation"></span>
                 <button class="btn btn-danger" type="button">&#x2715</button>
@@ -257,7 +256,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
             
             
             //ціна за кг за останній місяць для кошику
-            let last_price_kg = parseFloat(cartRow.getElementsByClassName('cart-price_q1')[0].getAttribute('data-price-kg'));  
+            let last_price_kg = parseFloat(cartRow.getElementsByClassName('cart-price-last')[0].getAttribute('data-price-kg'));  
             
             //ціна за попередній обраний місяць
             let previous_price_kg = parseFloat(data_for_compare[0].price)
@@ -270,7 +269,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
             let infliation = (last_price_kg / (previous_price_kg/100)).toFixed(1)           
             
             //оновлюємо вартість за останній місяць з врахуванням зміненої ваги
-            cartRow.getElementsByClassName('cart-price_q1')[0].innerHTML = last_price.toFixed(1);            
+            cartRow.getElementsByClassName('cart-price-last')[0].innerHTML = last_price.toFixed(1);            
             cartRow.getElementsByClassName('cart-price-previous')[0].innerHTML = previous_price.toFixed(1);
             cartRow.getElementsByClassName('cart-item-infliation')[0].innerHTML = infliation < 100 ? infliation+"%" + '<span style="color:green;">&#129067;</span>':  
                                     infliation > 100 ? infliation+"%" + '<span style="color:red;">&#129065;</span>':
@@ -293,10 +292,10 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         //розмір персональної інфляції на основі вагових коефіцієнтів
         var personal_q1_inliation = formula.reduce( function(a, b){ return  a + b}, 0) / count; 
         
-        document.getElementsByClassName('cart-total-q1')[0].innerText = total_current
-        document.getElementsByClassName('cart-total-median')[0].innerText =  total_previous
-        document.getElementsByClassName('infliation-total-q1')[0].innerText = personal_q1_inliation > 0 ? (personal_q1_inliation).toFixed(1) + "%" : '0%';
-        document.getElementsByClassName('infliation-total-median')[0].innerText = (total_current/(total_previous/100)).toFixed(1) + "%";
+        document.getElementsByClassName('cart-total-last')[0].innerText = total_current + " ₴"
+        document.getElementsByClassName('cart-total-previous')[0].innerText =  total_previous + " ₴"
+        document.getElementsByClassName('infliation-calculated')[0].innerText = personal_q1_inliation > 0 ? (personal_q1_inliation).toFixed(1) + "%" : '0%';
+        document.getElementsByClassName('infliation-real')[0].innerText = (total_current/(total_previous/100)).toFixed(1) + "%";
 
         drawCharts();        
     }
@@ -309,7 +308,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
 
     function drawCharts(){
         d3.select("#my_dataviz").selectAll("svg").remove();       
-        d3.select('#charts_legend').style("display", "block")
+        d3.select('#charts-legend').style("display", "block")
 
         var chartsData = data.filter(function(k){
             return cart.includes(k.short_name) & (k.measure === "Q1" | k.measure === "govstat");
@@ -469,7 +468,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
 
     }
 
-        d3.select('.btn-drawcharts').on('click', drawCharts);
+      
 
         function bouncer(arr) {
             return arr.filter(Boolean);
