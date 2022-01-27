@@ -131,10 +131,14 @@ h4 {
 }
 
 #play-card-wrapper #play-card #correct-price {
-  background-color: white;
+  /* background-color: white; */
   text-align: center;
   font-size: 30px;
-  border: 1px solid #324563;
+  font-weight: bold;
+  border: 1px solid white;
+  background-color: #324563;
+  color: white;
+  margin: 1px -1px 1px;
 }
 
 #play-card-wrapper #play-card #test-result {
@@ -207,6 +211,10 @@ h4 {
   min-width: 0px;
   font-weight: bold;
   text-align: center;
+  border: 1px solid white;
+  background-color: #324563;
+  color: white;
+  margin: 1px -1px 1px;
 }
 
 input[type="submit"] {

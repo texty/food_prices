@@ -126,10 +126,14 @@ h4 {
         }
 
         #correct-price {
-            background-color: white;
+            /* background-color: white; */
             text-align: center;
-            font-size: 30px;
-            border: 1px solid $dark-blue
+            font-size: 30px;            
+            font-weight: bold;
+            border: 1px solid white;
+            background-color: $dark-blue;
+            color: white;
+            margin: 1px -1px 1px;
         }
 
         #test-result {
@@ -204,6 +208,10 @@ h4 {
     //max-width: 245px;
     font-weight: bold;
     text-align: center;
+    border: 1px solid white;
+    background-color: $dark-blue;
+    color: white;
+    margin: 1px -1px 1px;
 }
 
 input[type="submit"]{

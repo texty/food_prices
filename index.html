@@ -24,13 +24,17 @@
 
         <div id='play-card-wrapper'>           
             <div id='play-card'>
-                <img id="guess-picture" src="img/png/milk.png"/>
+                <img id="guess-picture" src="img/png/milk.png"/>                
                 <div id="form">            
                     <p class="form-title">Памʼятаєте, якою була ціна на <span id='guess-product'>МОЛОКО 2.5% (1л)</span> півроку тому? </p>
+                    
+                    <!-- форма відповіді, дані якої треба записувати -->
                     <div id="action-form">
                         <input type="number" id="guess" name="guess" min="1" max='500'>                
                         <input type="submit" id="submit" value="Перевірити">
                     </div>  
+
+                    <!-- клон форми з правильною відповіддю -->
                     <div id='correct-answer'>
                         <div id='correct-price'>3</div>              
                         <div id='test-result'>
@@ -148,6 +152,7 @@
     <p class="main-text">Ми плануємо оновлювати дані дашборду щомісяця, а також розширити перелік категорій товарів, для яких відстежується ціна. Слідкуйте за оновленнями.</p>
   
         <script src="lib/d3v5.min.js"></script>
+        <script src="https://unpkg.com/d3-fetch"></script>
         <script src='js/play_card.js'></script>
         <script src="js/receipt.js"></script>
         <script src="js/prices_statick.js"></script>
