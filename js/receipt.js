@@ -27,6 +27,11 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         .enter()
         .append("div")
         .attr('class', "shop-item-category");
+
+    itemCategory.append("img")    
+        .attr("class", "icon")      
+        .attr("src", function(d){ return "/img/png/"+d.values[0].picture});
+
         
     itemCategory.append("input")    
         .attr("class", "toggle-inbox")
@@ -124,10 +129,16 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
             clickedItems[i].classList.remove('shop-item-clicked')
         }
 
+        //ховаємо іконки категорій
+        let iconPics = document.getElementsByClassName('icon');
+        for(var i = 0; i < iconPics.length; i++){
+            iconPics[i].style.opacity = 0
+        }
+
         //повертаємо "не обрано жодного товару", ховаємо графіки
         document.getElementById('no-history-to-show').style.display="block";  
         document.getElementById('my_dataviz').style.display="none";  
-        document.getElementsByClassName('infliation-total-real')[0].innerText = '0%'
+        document.getElementsByClassName('infliation-real')[0].innerText = '0%'
     }
         
     //видалити один елемент
@@ -145,6 +156,17 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
 
         cart=[];
         updateCartTotal();
+
+
+        //якщо в цій категорії не залишилось обраних товарів, прибираємо іконку продукту
+        let categList = document.getElementsByClassName('shop-item-category');
+        for(var i = 0; i < categList.length; i++){
+            if(categList[i].getElementsByClassName('shop-item-clicked')[0]){
+                return false
+            } else {
+                categList[i].getElementsByClassName('icon')[0].style.opacity=0
+            }
+        }        
     }       
 
 
@@ -169,9 +191,10 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
 
     function addToCartClicked(event) {
         var button = event.target;           
-        button.classList.add('shop-item-clicked');
-
+        button.classList.add('shop-item-clicked'); 
         var shopItem = button.parentElement.parentElement;
+        
+        shopItem.parentElement.parentElement.getElementsByClassName('icon')[0].style.opacity = 1;   
 
         var title = shopItem.getElementsByClassName('shop-item-title')[0].innerText;            
         var mode = shopItem.getElementsByClassName('shop-item-mode-weight')[0].getAttribute('mode-weight');
@@ -214,7 +237,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
                 
             <span data-price-kg='${price_kg}' class="cart-column cart-price-last">${price.toFixed(2)}</span>                
             <span class="cart-column cart-price-previous"></span>
-            <div class="cart-column">
+            <div class="cart-column last-column">
                 <span class="cart-item-infliation"></span>
                 <button class="btn btn-danger" type="button">&#x2715</button>
             </div>   `
