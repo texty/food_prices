@@ -73,21 +73,22 @@ d3.csv("data/play_cards.csv").then(function(cards){
                    "real_price": random_card.price, 
                    "guess_month": random_card.month,
                    "date": new Date()
-                };
-
-        console.log(row);
+                };       
 
         //відправляємо записаний рядок
-        /* d3.json('url', {
+/*         d3.json('http://127.0.0.1:5500/', {
             method:"POST",
             body: JSON.stringify(row),
             headers: {
                 "Content-Type": "application/json; charset=UTF-8"
             }
-        }).then(function(row){ submitAnswer() })  */
-            
+        }).then(function(row){ 
+            console.log(row);
+            submitAnswer() 
+        }) 
+             */
   
-        submitAnswer()   
+        //submitAnswer()   
         
       });
    
