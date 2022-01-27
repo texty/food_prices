@@ -30,7 +30,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
 
     itemCategory.append("img")    
         .attr("class", "icon")      
-        .attr("src", function(d){ return "/img/png/"+d.values[0].picture});
+        .attr("src", function(d){ return "img/png/"+d.values[0].picture});
 
         
     itemCategory.append("input")    
@@ -42,10 +42,11 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         .attr("class", "label")
         .attr("for", function(d,i){ return "_"+i })
         .text(function(d){  return d.key })
-        .on("click", function(){
+        .on("click", function(){             
             d3.select(this.parentNode)
                 .selectAll(".shop-item-wrapper")                
-                .classed("hidden", !d3.select(this.parentNode).selectAll(".shop-item-wrapper").classed("hidden"))
+                .classed("hidden", !d3.select(this.parentNode).selectAll(".shop-item-wrapper").classed("hidden"));           
+            
         })
         
     var itemDetails = itemCategory
@@ -162,7 +163,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         let categList = document.getElementsByClassName('shop-item-category');
         for(var i = 0; i < categList.length; i++){
             if(categList[i].getElementsByClassName('shop-item-clicked')[0]){
-                return false
+                console.log('nothing selected')
             } else {
                 categList[i].getElementsByClassName('icon')[0].style.opacity=0
             }

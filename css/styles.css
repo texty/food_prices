@@ -324,7 +324,7 @@ main h2 {
           transform: scale(1.3);
   margin-right: 0.5em;
   margin-left: 1.0em;
-  color: #FF0402;
+  color: white;
 }
 
 .toggle-inbox:checked + .label::after {
@@ -339,7 +339,7 @@ main h2 {
           transform: scale(1);
   margin-right: 0.5em;
   margin-left: 1.0em;
-  color: #FF0402;
+  color: white;
 }
 
 .shop-item-clicked {
