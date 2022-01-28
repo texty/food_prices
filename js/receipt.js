@@ -349,7 +349,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         
             // group the data: I want to draw one line per group
         var sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
-            .key(function(d) { return d.name;})
+            .key(function(d) { return d.short_name;})
             .entries(chartsData);
 
         // What is the list of groups?
