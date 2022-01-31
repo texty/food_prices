@@ -69,11 +69,13 @@ d3.csv("data/play_cards.csv").then(function(cards){
         let guessValue = d3.select("#guess").property("value");
      
         let row = {"product": random_card.title, 
-                   "guess_price": guessValue, 
-                   "real_price": random_card.price, 
+                   "guess_price": parseFloat(guessValue), 
+                   "real_price": parseFloat(random_card.price), 
                    "guess_month": random_card.month,
                    "date": new Date()
-                };       
+                };      
+                
+        texty_food_api.add(row)
 
         //відправляємо записаний рядок
      /*    d3.json('url', {
