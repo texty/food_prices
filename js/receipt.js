@@ -246,7 +246,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
             <div class="cart-column cart-item">
                 <span class="cart-item-title">${title}</span>
             </div>     
-            <input class="cart-quantity-input" type="number" min=”0″ value="${mode}" step="${step}" lang="en">   
+            <input class="cart-quantity-input" type="number" min=”${step}″ value="${mode}" step="${step}" lang="en">   
                 
             <span data-price-kg='${price_kg}' class="cart-column cart-price-last">${price.toFixed(2)}</span>                
             <span class="cart-column cart-price-previous"></span>
