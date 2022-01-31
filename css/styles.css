@@ -170,7 +170,7 @@ h4 {
 #btn-play-again {
   display: none;
   text-align: center;
-  margin: 20px auto;
+  margin: 10px auto 0;
   text-align: center;
   background-color: #324563;
   color: white;
@@ -181,9 +181,11 @@ h4 {
 }
 
 .btn-primary {
-  border: 1px solid #324563;
-  background-color: white;
+  font-size: 16px;
+  border: 1px solid white;
+  background-color: #324563;
   text-align: left;
+  color: white;
 }
 
 .btn-clear-all {
@@ -230,8 +232,8 @@ main {
   margin: auto;
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: 1fr 3fr;
-      grid-template-columns: 1fr 3fr;
+  -ms-grid-columns: 1.5fr 3fr;
+      grid-template-columns: 1.5fr 3fr;
 }
 
 @media (max-width: 800px) {
@@ -247,6 +249,12 @@ main h2 {
 .container {
   margin: 0 auto;
   padding: 0 1.5em;
+}
+
+.container-left {
+  background-color: #324563;
+  color: white;
+  width: 100%;
 }
 
 #board {
@@ -274,6 +282,7 @@ main h2 {
 
 .shop-item-wrapper {
   margin-top: 10px;
+  margin-left: 30px;
   -webkit-transition: max-height 2s ease-out;
   transition: max-height 2s ease-out;
   max-height: -webkit-max-content;
@@ -288,8 +297,19 @@ main h2 {
   transition: max-height 2s ease-out;
 }
 
+.icon {
+  width: 30px;
+  margin-bottom: -10px;
+  margin-right: 5px;
+  opacity: 0;
+}
+
 .toggle-inbox {
   display: none;
+}
+
+.label {
+  font-size: 18px;
 }
 
 .toggle-inbox:not(:checked) + label:after {
@@ -304,7 +324,7 @@ main h2 {
           transform: scale(1.3);
   margin-right: 0.5em;
   margin-left: 1.0em;
-  color: #FF0402;
+  color: white;
 }
 
 .toggle-inbox:checked + .label::after {
@@ -319,12 +339,12 @@ main h2 {
           transform: scale(1);
   margin-right: 0.5em;
   margin-left: 1.0em;
-  color: #FF0402;
+  color: white;
 }
 
 .shop-item-clicked {
-  background-color: #324563;
-  color: white;
+  background-color: white;
+  color: #324563;
 }
 
 .shop-item-details {
@@ -353,6 +373,13 @@ main h2 {
           align-items: center;
 }
 
+.last-column {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: auto 20px;
+      grid-template-columns: auto 20px;
+}
+
 .cart-items {
   padding-bottom: 20px;
   border-bottom: 2px solid #324563;
@@ -364,15 +391,15 @@ main h2 {
   font-size: 1em;
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: 4fr 2fr 2fr 2fr 3fr;
-      grid-template-columns: 4fr 2fr 2fr 2fr 3fr;
+  -ms-grid-columns: 4fr 2fr 2fr 2fr 3fr 0.5fr;
+      grid-template-columns: 4fr 2fr 2fr 2fr 3fr 0.5fr;
 }
 
 @media (max-width: 600px) and (orientation: portrait) {
   .cart-row {
     font-size: 0.7em;
-    -ms-grid-columns: 3fr 3fr 3fr 3fr 3fr;
-        grid-template-columns: 3fr 3fr 3fr 3fr 3fr;
+    -ms-grid-columns: 3fr 3fr 3fr 3fr 3fr 0.5fr;
+        grid-template-columns: 3fr 3fr 3fr 3fr 3fr 0.5fr;
   }
 }
 

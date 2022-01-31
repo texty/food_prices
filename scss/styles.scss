@@ -166,7 +166,7 @@ h4 {
 #btn-play-again {
     display: none;
     text-align: center;
-    margin: 20px auto;
+    margin: 10px auto 0;
     text-align: center;
     background-color: #324563;
     color: white;
@@ -176,10 +176,12 @@ h4 {
     text-transform: uppercase;
 }
 
-.btn-primary {    
-    border: 1px solid $dark-blue;
-    background-color: white;
+.btn-primary {  
+    font-size: 16px;  
+    border: 1px solid white;
+    background-color: $dark-blue;
     text-align: left;
+    color: white;
 }
 
 .btn-clear-all {
@@ -230,7 +232,7 @@ main {
     max-width: 1400px;
     margin:auto;
     display: grid;
-    grid-template-columns: 1fr 3fr;
+    grid-template-columns: 1.5fr 3fr;
     @media(max-width: 800px){
         display: block;
     }
@@ -243,6 +245,12 @@ main {
 .container {   
     margin: 0 auto;
     padding: 0 1.5em;
+}
+
+.container-left {
+    background-color: $dark-blue;
+    color: white;
+    width: 100%;
 }
 
 #board {
@@ -268,6 +276,7 @@ main {
 //блок товарів у категорії
 .shop-item-wrapper {
     margin-top: 10px;
+    margin-left: 30px;
     transition: max-height 2s ease-out;
     max-height: max-content;
 }
@@ -279,9 +288,21 @@ main {
     transition: max-height 2s ease-out;
 }
 
+.icon {
+    width:30px;    
+    margin-bottom: -10px;
+    margin-right: 5px;
+    opacity:0;
+}
+
 //plus-minus
 .toggle-inbox {
    display: none;
+}
+
+.label {
+    font-size: 18px;
+
 }
 
 .toggle-inbox:not(:checked) + label:after {
@@ -295,7 +316,7 @@ main {
     transform: scale(1.3);
     margin-right: 0.5em;
     margin-left: 1.0em;
-    color: $red;
+    color: white;;
 }
 
 .toggle-inbox:checked +.label::after {
@@ -309,17 +330,17 @@ main {
     transform: scale(1);
     margin-right: 0.5em;
     margin-left: 1.0em;
-    color: $red;
+    color: white;
 }
 
 .shop-item-clicked {
-    background-color: $dark-blue;
-    color: white;
+    background-color: white;;
+    color: $dark-blue;
 }
 
 .shop-item-details {   
     color: $dark-blue;
-    padding: 5px;
+    padding: 5px;    
 
     .shop-item-price, .shop-item-mode-weight,  .shop-item-title {
         display: none; 
@@ -340,6 +361,11 @@ main {
     align-items: center;   
 }
 
+.last-column {
+    display: grid;
+    grid-template-columns: auto 20px;
+}
+
 
 //selected items
 .cart-items {
@@ -352,10 +378,10 @@ main {
 .cart-row {
     font-size: 1em;
     display: grid;
-    grid-template-columns: 4fr 2fr 2fr 2fr 3fr;    
+    grid-template-columns: 4fr 2fr 2fr 2fr 3fr 0.5fr;    
     @media(max-width:600px) and (orientation: portrait) {
         font-size: 0.7em;
-        grid-template-columns: 3fr 3fr 3fr 3fr 3fr;
+        grid-template-columns: 3fr 3fr 3fr 3fr 3fr 0.5fr;
     }
 }
 
