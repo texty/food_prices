@@ -77,17 +77,6 @@ d3.csv("data/play_cards.csv").then(function(cards){
                 
         texty_food_api.add(row)
 
-        //відправляємо записаний рядок
-     /*    d3.json('url', {
-            method:"POST",
-            body: JSON.stringify(row),
-            headers: {
-                "Content-Type": "application/json; charset=UTF-8"
-            }
-        }).then(function(row){    
-            submitAnswer(); 
-        })  */
-
         submitAnswer(); 
         
       });

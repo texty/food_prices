@@ -19,7 +19,6 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
     var nested_data = d3.nest()
         .key(function(d) { return d.category; })
         .entries(items_array);
-
    
     var itemCategory = d3.select(".categories")
         .selectAll("div.shop-item-category")
@@ -61,11 +60,12 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         .append("div")
         .attr("class", "shop-item-details");
 
+
+    //приховані параметри    
     itemDetails
         .append("span")
         .attr('class', "shop-item-title")
-        .text(function(d){            
-            return d.short_name })
+        .text(function(d){  return d.short_name })
  
     itemDetails
         .append("span")
@@ -79,6 +79,14 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         .attr('mode-weight', function(d){ return d.mode})
         .text(function(d){ return d.mode})
 
+    itemDetails
+        .append("span")
+        .attr('class', "shop-item-weight-step")
+        .attr('weight-step', function(d){ return d.step})
+        .text(function(d){ return d.step})
+
+
+    //видима кнопка
     itemDetails
         .append("button")
         .attr('class', "btn btn-primary shop-item-button")
@@ -191,25 +199,29 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         
 
     function addToCartClicked(event) {
-        var button = event.target;           
-        button.classList.add('shop-item-clicked'); 
-        var shopItem = button.parentElement.parentElement;
+        //var button = event.target; 
+        event.target.classList.add('shop-item-clicked'); 
         
+        var shopItem = event.target.parentElement.parentElement;
+        
+        //іконки категорій
         shopItem.parentElement.parentElement.getElementsByClassName('icon')[0].style.opacity = 1;   
 
+        //додаткові параметри
         var title = shopItem.getElementsByClassName('shop-item-title')[0].innerText;            
         var mode = shopItem.getElementsByClassName('shop-item-mode-weight')[0].getAttribute('mode-weight');
+        var step = shopItem.getElementsByClassName('shop-item-weight-step')[0].getAttribute('weight-step');
         var price_kg = shopItem.getElementsByClassName('shop-item-price')[0].innerText;
         var price = price_kg * mode;
 
-        addItemToCart(title, price, price_kg, mode);
+        addItemToCart(title, price, price_kg, mode, step);
         updateCartTotal();
 
         document.getElementById('no-history-to-show').style.display="none";   
         document.getElementById('my_dataviz').style.display="block";   
     }
         
-    function addItemToCart(title, price, price_kg, mode) {
+    function addItemToCart(title, price, price_kg, mode, step) {
         cart = []
         price = parseFloat(price);
         price_kg = parseFloat(price_kg);
@@ -234,7 +246,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
             <div class="cart-column cart-item">
                 <span class="cart-item-title">${title}</span>
             </div>     
-            <input class="cart-quantity-input" type="number" min=”0″ value="${mode}" step="0.1" lang="en">   
+            <input class="cart-quantity-input" type="number" min=”0″ value="${mode}" step="${step}" lang="en">   
                 
             <span data-price-kg='${price_kg}' class="cart-column cart-price-last">${price.toFixed(2)}</span>                
             <span class="cart-column cart-price-previous"></span>
