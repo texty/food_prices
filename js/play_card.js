@@ -15,7 +15,7 @@ d3.csv("data/play_cards.csv").then(function(cards){
         
         //виводимо назву продукту і картинку в контейнер з карткою
         d3.select("#guess-picture").attr("src", "img/png/"+ random_card.img)
-        d3.select("#guess-product").html( random_card.title.toUpperCase() + " ("+ random_card.weight+")");
+        d3.select("#guess-product").html( random_card.title.toUpperCase() + " ("+ random_card.weight_to_show+")");
 
         //ховаємо правильну відповідь
         d3.select("#correct-answer").style("display", "none");

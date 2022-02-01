@@ -66,24 +66,9 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         .append("span")
         .attr('class', "shop-item-title")
         .text(function(d){  return d.short_name })
- 
-    itemDetails
-        .append("span")
-        .attr('class', "shop-item-price")
-        .attr('data-infliation', function(d){ return d.inflation})
-        .text(function(d){ return d.price })
-
-    itemDetails
-        .append("span")
-        .attr('class', "shop-item-mode-weight")
-        .attr('mode-weight', function(d){ return d.mode})
-        .text(function(d){ return d.mode})
-
-    itemDetails
-        .append("span")
-        .attr('class', "shop-item-weight-step")
-        .attr('weight-step', function(d){ return d.step})
-        .text(function(d){ return d.step})
+        .attr("item-price", function(d){ return d.price })
+        .attr("mode-weight", function(d){ return d.mode })
+        .attr("weight-step", function(d){ return d.step })   
 
 
     //видима кнопка
@@ -205,16 +190,18 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         var shopItem = event.target.parentElement.parentElement;
         
         //іконки категорій
-        shopItem.parentElement.parentElement.getElementsByClassName('icon')[0].style.opacity = 1;   
-
+        shopItem.parentElement.parentElement.getElementsByClassName('icon')[0].style.opacity = 1;  
+        
         //додаткові параметри
-        var title = shopItem.getElementsByClassName('shop-item-title')[0].innerText;            
-        var mode = shopItem.getElementsByClassName('shop-item-mode-weight')[0].getAttribute('mode-weight');
-        var step = shopItem.getElementsByClassName('shop-item-weight-step')[0].getAttribute('weight-step');
-        var price_kg = shopItem.getElementsByClassName('shop-item-price')[0].innerText;
+        var shopItemDetails = shopItem.getElementsByClassName('shop-item-title')[0]        
+        var title = shopItemDetails.innerText;            
+        var mode = shopItemDetails.getAttribute('mode-weight');
+        var step = shopItemDetails.getAttribute('weight-step');
+        var price_kg = shopItemDetails.getAttribute('item-price');
         var price = price_kg * mode;
 
         addItemToCart(title, price, price_kg, mode, step);
+
         updateCartTotal();
 
         document.getElementById('no-history-to-show').style.display="none";   
