@@ -43,7 +43,8 @@ header img {
 h1 {
   max-width: 80%;
   margin: auto;
-  font-size: calc(30px + 4vw);
+  font-size: calc(30px + 3vw);
+  line-height: 1.2;
 }
 
 h2 {
