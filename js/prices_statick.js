@@ -5,10 +5,11 @@ d3.csv("data/govstat_market_compare_prices.csv").then(function(data){
         d.price_q1 = +d.price_q1;
         d.price_min = +d.price_min;
         d.month = d3.timeParse("%Y-%m-%d")(d.month);
+        d.sort = Math.abs( 100 - (d.price_q1 / (d.price/100)))  //сортуємо за різницей між q1 та держстатом
     })
     
     var margin = {top: 25, right: 50, bottom: 25, left: 50};
-    var chartInnerWidth = 130;
+    var chartInnerWidth = 150;
     var chartOuterWidth = 180;
     var chartInnerHeight = 100;
     var chartOuterHeight = 150;    
@@ -27,7 +28,10 @@ d3.csv("data/govstat_market_compare_prices.csv").then(function(data){
 
     var nested = d3.nest()
         .key(function(d) { return d.item; })
-        .entries(data.filter(function(d){ return d.month.getTime() > new Date('2021-07-31').getTime()}));
+        .entries(data.filter(function(d){ return d.month.getTime() > new Date('2021-07-31').getTime()}))
+        .sort(function(a, b){
+        return b.values[3].sort - a.values[3].sort
+    });
 
 
     //create scale and line generator for each facet
@@ -37,7 +41,7 @@ d3.csv("data/govstat_market_compare_prices.csv").then(function(data){
         const yMin = d3.min(s.values, function(d){ return d.price_min});       
        
         const yScale = d3.scaleLinear()
-            .domain([0, yMax * 2])
+            .domain([0,  yMax * 2])
             .range([chartInnerHeight, 0]);
         
         const price_govstat_line = d3.line()
@@ -81,11 +85,12 @@ d3.csv("data/govstat_market_compare_prices.csv").then(function(data){
     
     multiple.append("text")
         .attr("class", "item")
-        .attr("x", 10)
+        .attr("x", "-15px")
         .attr("y", 0)
         .text(function(d){ return d.key })
         .style("fill", "#324563")
-        .style('font-size', '14px')
+        .style('font-size', '13px')
+        .style("font-weight", "bold");
 
         //gradient scale
     multiple
@@ -160,7 +165,8 @@ d3.csv("data/govstat_market_compare_prices.csv").then(function(data){
                     .append("text")
                     .attr("font-size", "12px")                    
                     .attr("y", function(d){ return chart_data[d.key].yScale(d.values[0].price)-3})
-                    .attr("x", function(d){ return xScale(new Date('2021-08-01'))})
+                    .attr("x", function(d){ return xScale(new Date('2021-10-20'))})
+                    .style("text-anchor", "end")
                     .style("fill", "red")
                     .text("держстат")
 
@@ -176,7 +182,7 @@ d3.csv("data/govstat_market_compare_prices.csv").then(function(data){
                 d3.select(this)
                     .append("text")
                     .attr("font-size", "12px")                    
-                    .attr("y", function(d){ return chart_data[d.key].yScale(d.values[0].price_q1)-5})
+                    .attr("y", function(d){ return chart_data[d.key].yScale(d.values[0].price_q1)-35})
                     .attr("x", function(d){ return xScale(new Date('2021-08-01'))})
                     .style("fill", darkBlue)
                     .text("1 квартиль")

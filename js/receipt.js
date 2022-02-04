@@ -184,7 +184,6 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         
 
     function addToCartClicked(event) {
-        //var button = event.target; 
         event.target.classList.add('shop-item-clicked'); 
         
         var shopItem = event.target.parentElement.parentElement;
