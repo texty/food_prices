@@ -315,10 +315,10 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         //розмір персональної інфляції на основі вагових коефіцієнтів
         var personal_q1_inliation = formula.reduce( function(a, b){ return  a + b}, 0) / count; 
         
-        document.getElementsByClassName('cart-total-last')[0].innerText = total_current + " ₴"
-        document.getElementsByClassName('cart-total-previous')[0].innerText =  total_previous + " ₴"
+        document.getElementsByClassName('cart-total-last')[0].innerText = total_current;
+        document.getElementsByClassName('cart-total-previous')[0].innerText =  total_previous;
         document.getElementsByClassName('infliation-calculated')[0].innerText = personal_q1_inliation > 0 ? (personal_q1_inliation).toFixed(1) + "%" : '0%';
-        document.getElementsByClassName('infliation-real')[0].innerText = (total_current/(total_previous/100)).toFixed(1) + "%";
+        document.getElementsByClassName('infliation-real')[0].innerText = personal_q1_inliation > 0 ? (total_current/(total_previous/100)).toFixed(1) + "%" : '0%';
 
         drawCharts();        
     }
