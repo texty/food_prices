@@ -453,9 +453,12 @@ main h2 {
 }
 
 select {
+  color: #324563;
   padding: 1px;
   font-style: italic;
   font-size: 1em;
+  border-color: #324563;
+  background-color: transparent;
 }
 
 .cart-total-title {

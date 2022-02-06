@@ -11,14 +11,43 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
          d.count = 1;
     })
 
+    var lastDate =  d3.max(data, function(d) { return d.month;});
+
+    d3.select(".cart-header.cart-price-last")
+        .html("вартість <br>" + ('0' + (lastDate.getMonth() + 1)).slice(-2) + "/" +  (lastDate.getYear() + 1900))
+
+    //унікальні місяці, окрім останнього
+    var monthOptions = d3.map(
+        data.filter(function(d) {return d.measure === "Q1" && d.month.getTime() != lastDate.getTime() }), 
+        function(d) { 
+            return d3.timeFormat("%Y-%m-%d")(d.month)
+         }).keys();
+
+    
+    //додаємо унікальні місяці в select dropdown
+    d3.select("#cart-price_dropdown")
+        .selectAll('option')
+        .data(monthOptions)
+        .enter()
+        .append("option")
+        .attr("value", function(d) { return d })
+        .text(function(d) { 
+            let currentDate = new Date(d);
+            let currentMonth = ('0' + (currentDate.getMonth() + 1)).slice(-2) 
+            return currentMonth + "/" +  (currentDate.getYear() + 1900)  })
+
+
+    //дані останнього місяця, які будемо порівнювати із попередніми    
     var items_array = data.filter(function(d){           
         return d.measure === "Q1" && 
-            d.month.getTime() === new Date("2022-01-01T00:00:00").getTime() 
+            d.month.getTime() === lastDate.getTime() 
     })
+
 
     var nested_data = d3.nest()
         .key(function(d) { return d.category; })
         .entries(items_array);
+
    
     var itemCategory = d3.select(".categories")
         .selectAll("div.shop-item-category")
@@ -129,9 +158,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
             iconPics[i].style.opacity = 0
         }
 
-        //повертаємо "не обрано жодного товару", ховаємо графіки
-        document.getElementById('no-history-to-show').style.display="block";  
-        document.getElementById('my_dataviz').style.display="none";  
+        //повертаємо "не обрано жодного товару", ховаємо графіки   
         document.getElementsByClassName('infliation-real')[0].innerText = '0%'
     }
         
@@ -178,6 +205,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         updateCartTotal()
     })
 
+
     function changeMonth(){
         var month_for_compare = d3.select('#cart-price_dropdown').node().value; 
     }
@@ -202,9 +230,7 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         addItemToCart(title, price, price_kg, mode, step);
 
         updateCartTotal();
-
-        document.getElementById('no-history-to-show').style.display="none";   
-        document.getElementById('my_dataviz').style.display="block";   
+         
     }
         
     function addItemToCart(title, price, price_kg, mode, step) {
@@ -319,7 +345,15 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         document.getElementsByClassName('infliation-calculated')[0].innerText = personal_q1_inliation > 0 ? (personal_q1_inliation).toFixed(1) + "%" : '0%';
         document.getElementsByClassName('infliation-real')[0].innerText = personal_q1_inliation > 0 ? (total_current/(total_previous/100)).toFixed(1) + "%" : '0%';
 
-        drawCharts();        
+        drawCharts();   
+        
+        if(cart.length > 0){
+            document.getElementById('no-history-to-show').style.display="none";   
+            document.getElementById('my_dataviz').style.display="block";   
+        } else {
+            document.getElementById('no-history-to-show').style.display="block";   
+            document.getElementById('my_dataviz').style.display="none";   
+        }
     }
 
     var sum = function(df, prop){
@@ -368,27 +402,31 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
                 "translate(" + margin.left + "," + margin.top + ")");
 
             var xYears = d3.scaleTime()
-                // .domain(d3.extent(item.values, function(d) { return d.month; }))
-                .domain([new Date("2017-10-01"), new Date("2021-12-01")])
+                 .domain(d3.extent(item.values, function(d) { return d.month; }))               
                 .range([ 0, width/3 ]);
 
+            var maxDate =  d3.max(item.values, function(d) { return d.month;});
+            var maxYear = maxDate.getYear() + 1900;
+            var maxMonth = maxDate.getMonth() + 1;
+
+
             var xMonths = d3.scaleTime()
-                // .domain(d3.extent(item.values, function(d) { return d.month; }))
-                .domain([new Date("2021-08-01"), new Date("2022-03-31")])
+                .domain([new Date("2021-08-01"), new Date(maxYear+ "-" + maxMonth + "-31")])
+               // .domain([new Date("2021-08-01"), new Date("2022-03-31")])
                 .range([width/3, width]);
 
             svg
                 .append("g")
                 .attr("transform", "translate(0," + height + ")")
                 .call(d3.axisBottom(xMonths)
-                .tickValues([                                       
+                /* .tickValues([                                       
                     new Date('2021-08-01'),
                     new Date('2021-09-01'),
                     new Date('2021-10-01'),
                     new Date('2021-11-01'),
                     new Date('2021-12-01'),
                     new Date('2022-01-01'),                       
-                ])
+                ]) */
                     .tickSize(-height)
                     .tickFormat(d3.timeFormat("%b %y"))                        
                 ).selectAll("text")
