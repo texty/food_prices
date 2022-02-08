@@ -6,7 +6,6 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
 
     data.forEach(function(d){           
          d.month = d3.timeParse("%Y-%m-%d")(d.month);
-         d.inflation = +d.inflation;
          d.price = +d.price;   
          d.count = 1;
     })

@@ -4,17 +4,24 @@ d3.csv("data/play_cards.csv").then(function(cards){
     })
 
     var random_card = cards[Math.floor(Math.random() * cards.length)];
-
-
+    var unwatched_cards = cards.filter(function(d){ return d.index != random_card.index; })
 
     function letPlay(){
         d3.select("#guess").property("value", "");        
 
+        //якщо всі картки програно, то починаємо спочатку
+        if(unwatched_cards.length === 0){
+            unwatched_cards = cards
+        }
+
         //обираємо випадкову картку
-        random_card = cards[Math.floor(Math.random() * cards.length)];
+        random_card = unwatched_cards[Math.floor(Math.random() * unwatched_cards.length)];  
+
+        //прибираємо вибране значення з масиву
+        unwatched_cards = unwatched_cards.filter(function(d){ return d.index != random_card.index; })
         
         //виводимо назву продукту і картинку в контейнер з карткою
-        d3.select("#guess-picture").attr("src", "img/png/"+ random_card.img + ".png")
+        d3.select("#guess-picture").attr("src", "img/png/"+ random_card.img)
         d3.select("#guess-product").html( random_card.title.toUpperCase() + " ("+ random_card.weight_to_show+")");
 
         //ховаємо правильну відповідь
@@ -60,7 +67,9 @@ d3.csv("data/play_cards.csv").then(function(cards){
         //ховаємо форму відповіді і показуємо правильну
         d3.select("#correct-answer").style("display", "grid");
         d3.select("#action-form").style("display", "none");
-        d3.select("#btn-play-again").style("display", "block");
+        d3.select("#btn-play-again")
+            .style("opacity", "1")
+            .style("pointer-events", "all");
 
     }
 
