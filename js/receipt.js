@@ -16,8 +16,9 @@ d3.csv("data/cpi_q1_median_january_2022_and_govstat_history.csv").then(function(
         .html("вартість <br>" + ('0' + (lastDate.getMonth() + 1)).slice(-2) + "/" +  (lastDate.getYear() + 1900))
 
     //унікальні місяці, окрім останнього
-    var monthOptions = d3.map(
-        data.filter(function(d) {return d.measure === "Q1" && d.month.getTime() != lastDate.getTime() }), 
+    var monthOptions = d3.map(data
+        .filter(function(d) {return d.measure === "Q1" && d.month.getTime() != lastDate.getTime() })
+        .sort(function(a,b){ return a.month.getTime()- b.month.getTime()}), 
         function(d) { 
             return d3.timeFormat("%Y-%m-%d")(d.month)
          }).keys();
